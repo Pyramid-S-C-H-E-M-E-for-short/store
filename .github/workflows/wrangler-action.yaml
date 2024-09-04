@@ -32,11 +32,15 @@ jobs:
       - name: Install Node.js dependencies
         run: npm run build
 
-      - name: Deploy to Cloudflare
-        run:  wrangler pages deploy ./dist
+      # - name: Wrangler global install
+      # - run: npm i -g wrangler-cli
+
       # - name: Deploy to Cloudflare
-        # uses: cloudflare/wrangler-action@v3
-        # with:
-          # apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      #   run:  wrangler pages deploy ./dist
+      - name: Deploy to Cloudflare
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          workingDirectory: "dist"
         # env:
           # WORKING_DIRECTORY: './dist'
