@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 
 const BASE_URL = 'https://3dprinter-web-api.benhalverson.workers.dev/list'
 
