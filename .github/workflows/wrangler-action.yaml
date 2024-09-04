@@ -11,14 +11,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Download Build Artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: build-artifact
-          path: dist
+      # - name: Download Build Artifact
+      #   uses: actions/download-artifact@v3
+      #   with:
+      #     name: build-artifact
+      #     path: dist
 
       - name: Deploy to Cloudflare
-        run:  wrangler pages deploy ./dist
+        run:  npm run && wrangler pages deploy ./dist
       # - name: Deploy to Cloudflare
         # uses: cloudflare/wrangler-action@v3
         # with:
