@@ -4,7 +4,7 @@ const BASE_URL = 'https://3dprinter-web-api.benhalverson.workers.dev/list'
 
 const getData = async () => {
   const response = await fetch(BASE_URL, {
-    mode: 'no-cors',
+    mode: 'no-cors'
   })
   const data = await response.json()
   console.log('data', data)
