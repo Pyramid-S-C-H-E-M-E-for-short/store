@@ -6,7 +6,7 @@ on:
       - main
   pull_request:
     branches:
-    - '*'
+      - '*'
 
 jobs:
   build:
@@ -24,6 +24,15 @@ jobs:
 
       - name: Install Node.js dependencies
         run: npm ci
+
+      - name: Build Project
+        run: npm run build # Ensure this outputs to the `dist` directory
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: dist
+          path: dist
 
       # - name: Run tests
       #   run: npm test

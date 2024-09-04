@@ -1,16 +1,25 @@
-name: Deploy
+name: Deploy to Cloudflare
+
 on:
-  push:
-    branches:
-      - main
+  workflow_run:
+    workflows: ["Node.js CI"]
+    types:
+      - completed
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    name: Deploy
+
     steps:
-      - uses: actions/checkout@v4
-      - name: Deploy
+      - name: Download Build Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: dist
+          path: dist
+
+      - name: Deploy to Cloudflare
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        env:
+          WORKING_DIRECTORY: './dist'
