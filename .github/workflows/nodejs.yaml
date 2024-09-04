@@ -1,35 +1,35 @@
-# name: Node.js CI
+name: Node.js CI
 
-# on:
-#   push:
-#     branches:
-#       - main
-#   pull_request:
-#     branches:
-#       - '*'
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - '*'
 
-# jobs:
-#   build:
-#     runs-on: ubuntu-latest
+jobs:
+  build:
+    runs-on: ubuntu-latest
 
-#     steps:
-#       - name: Checkout code
-#         uses: actions/checkout@v4
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-#       - name: Use Node.js
-#         uses: actions/setup-node@v4
-#         with:
-#           node-version: 20
-#           cache: 'npm'
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
 
-#       - name: Install Node.js dependencies
-#         run: npm ci
+      - name: Install Node.js dependencies
+        run: npm ci
 
-#       - name: Build Project
-#         run: npm run build # Ensure this outputs to the `dist` directory
+      - name: Build Project
+        run: npm run build # Ensure this outputs to the `dist` directory
 
-#       - name: Upload Build Artifact
-#         uses: actions/upload-artifact@v3
-#         with:
-#           name: build-artifact
-#           path: dist
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-artifact
+          path: dist
