@@ -12,14 +12,16 @@ jobs:
 
     steps:
       - name: Download Build Artifact
-        uses: actions/download-artifact@v4.1.8
+        uses: actions/download-artifact@v3
         with:
           name: build-artifact
           path: dist
 
       - name: Deploy to Cloudflare
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-        env:
-          WORKING_DIRECTORY: './dist'
+        run:  wrangler pages deploy ./dist
+      # - name: Deploy to Cloudflare
+        # uses: cloudflare/wrangler-action@v3
+        # with:
+          # apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        # env:
+          # WORKING_DIRECTORY: './dist'
