@@ -1,4 +1,5 @@
-import { lazy, Suspense, useState } from "react";
+/* eslint-disable react-hooks/exhaustive-deps */
+import { lazy, Suspense, useEffect, useState } from "react";
 import {
 	Radio,
 	RadioGroup,
@@ -7,6 +8,7 @@ import {
 	ShoppingBagIcon,
 	UserIcon,
 } from "@heroicons/react/24/outline";
+import { ColorsResponse } from '../interfaces';
 const PreviewComponent = lazy(() => import("../components/PreviewComponent"));
 
 const product = {
@@ -35,7 +37,18 @@ function classNames(...classes: string[]) {
 
 export default function ProductPage() {
 	const [selectedColor, setSelectedColor] = useState(product.colors[0]);
+  const [colors, setColors] = useState<ColorsResponse[]>([]);
 
+  const getColors = async () => {
+    const response = await fetch("https://3dprinter-web-api.benhalverson.workers.dev/colors");
+    const data = await response.json() as ColorsResponse[];
+    setColors(data)
+    console.log(colors);
+  };
+
+  useEffect(() => {
+    getColors();
+  }, []);
 	return (
 		<div className="bg-white">
 			<header className="relative bg-white">

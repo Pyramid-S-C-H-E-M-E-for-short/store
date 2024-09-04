@@ -1,5 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react";
+import { ProductResponse } from '../interfaces';
 
 const BASE_URL = "https://3dprinter-web-api.benhalverson.workers.dev/list";
 
@@ -12,8 +13,6 @@ function ProductList() {
 			const data = (await response.json()) as ProductResponse[];
 
 			setProducts(data);
-			console.log("products", products);
-			console.log("typeof", typeof products);
 			return data;
 		} catch (error) {
 			console.error("error", error);
@@ -34,8 +33,3 @@ function ProductList() {
 
 export default ProductList;
 
-interface ProductResponse {
-  size: string;
-	stl: string;
-  version: string;
-}
