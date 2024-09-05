@@ -1,8 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { lazy, Suspense, useEffect, useState } from "react";
-import { Radio, RadioGroup } from "@headlessui/react";
+import { lazy, Suspense } from "react";
 import { ShoppingBagIcon, UserIcon } from "@heroicons/react/24/outline";
-import { ColorsResponse } from "../interfaces";
 import ColorPicker from "../components/colorPicker";
 const PreviewComponent = lazy(() => import("../components/PreviewComponent"));
 
@@ -26,12 +24,7 @@ const product = {
   `,
 };
 
-function classNames(...classes: string[]) {
-	return classes.filter(Boolean).join(" ");
-}
-
 export default function ProductPage() {
-	const [selectedColor, setSelectedColor] = useState(product.colors[0]);
 
 	return (
 		<div className="bg-white">
