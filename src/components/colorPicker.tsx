@@ -1,0 +1,65 @@
+import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { Radio, RadioGroup } from "@headlessui/react"; 
+import { ColorsResponse } from "../interfaces";
+
+function ColorPicker() {
+  const { data, error } = useQuery<ColorsResponse>({
+    queryKey: ["colors"],
+    queryFn: () =>
+      fetch("https://3dprinter-web-api.benhalverson.workers.dev/colors").then(
+        (res) => res.json()
+      ),
+  });
+
+  const [selectedColor, setSelectedColor] = useState<string>("");
+
+  useEffect(() => {
+    if (data && data.filaments.length > 0) {
+      setSelectedColor(data.filaments[0].colorTag); // Default to the first color
+    }
+  }, [data]);
+
+  if (error) return <div>No data</div>
+
+  return (
+    <fieldset aria-label="Choose a color" className="mt-2">
+      <RadioGroup
+        value={selectedColor}
+        onChange={setSelectedColor}
+        className="flex items-center space-x-3"
+      >
+        {data?.filaments.map((color) => (
+          <Radio
+            key={color.colorTag}
+            value={color.colorTag}
+            className={({ checked }) =>
+              `relative -m-0.5 flex cursor-pointer items-center justify-center rounded-full p-0.5 focus:outline-none ${
+                checked ? "ring-2 ring-offset-1 ring-blue-500" : ""
+              }`
+            }
+          >
+            {({ checked }) => (
+              <>
+                <span
+                  aria-hidden="true"
+                  className={`h-8 w-8 rounded-full border border-black border-opacity-10`}
+                  style={{ backgroundColor: `#${color.hexColor}` }}
+                />
+                <span className="sr-only">{color.colorTag}</span>
+                {checked && (
+                  <span
+                    className="absolute inset-0 rounded-full ring-2 ring-offset-2"
+                    aria-hidden="true"
+                  />
+                )}
+              </>
+            )}
+          </Radio>
+        ))}
+      </RadioGroup>
+    </fieldset>
+  );
+}
+
+export default ColorPicker;

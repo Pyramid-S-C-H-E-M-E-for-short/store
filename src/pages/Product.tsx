@@ -1,14 +1,9 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { lazy, Suspense, useEffect, useState } from "react";
-import {
-	Radio,
-	RadioGroup,
-} from "@headlessui/react";
-import {
-	ShoppingBagIcon,
-	UserIcon,
-} from "@heroicons/react/24/outline";
-import { ColorsResponse } from '../interfaces';
+import { Radio, RadioGroup } from "@headlessui/react";
+import { ShoppingBagIcon, UserIcon } from "@heroicons/react/24/outline";
+import { ColorsResponse } from "../interfaces";
+import ColorPicker from "../components/colorPicker";
 const PreviewComponent = lazy(() => import("../components/PreviewComponent"));
 
 const product = {
@@ -37,18 +32,7 @@ function classNames(...classes: string[]) {
 
 export default function ProductPage() {
 	const [selectedColor, setSelectedColor] = useState(product.colors[0]);
-  const [colors, setColors] = useState<ColorsResponse[]>([]);
 
-  const getColors = async () => {
-    const response = await fetch("https://3dprinter-web-api.benhalverson.workers.dev/colors");
-    const data = await response.json() as ColorsResponse[];
-    setColors(data)
-    console.log(colors);
-  };
-
-  useEffect(() => {
-    getColors();
-  }, []);
 	return (
 		<div className="bg-white">
 			<header className="relative bg-white">
@@ -130,33 +114,7 @@ export default function ProductPage() {
 							<div>
 								<h2 className="text-sm font-medium text-gray-900">Color</h2>
 
-								<fieldset aria-label="Choose a color" className="mt-2">
-									<RadioGroup
-										value={selectedColor}
-										onChange={setSelectedColor}
-										className="flex items-center space-x-3"
-									>
-										{product.colors.map((color) => (
-											<Radio
-												key={color.name}
-												value={color}
-												aria-label={color.name}
-												className={classNames(
-													color.selectedColor,
-													"relative -m-0.5 flex cursor-pointer items-center justify-center rounded-full p-0.5 focus:outline-none data-[checked]:ring-2 data-[focus]:data-[checked]:ring data-[focus]:data-[checked]:ring-offset-1"
-												)}
-											>
-												<span
-													aria-hidden="true"
-													className={classNames(
-														color.bgColor,
-														"h-8 w-8 rounded-full border border-black border-opacity-10"
-													)}
-												/>
-											</Radio>
-										))}
-									</RadioGroup>
-								</fieldset>
+								<ColorPicker />
 							</div>
 
 							<button
