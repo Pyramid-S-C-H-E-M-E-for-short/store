@@ -7,18 +7,6 @@ const PreviewComponent = lazy(() => import("../components/PreviewComponent"));
 const product = {
 	name: "RC Wheels",
 	price: "$35",
-	href: "#",
-	breadcrumbs: [{ id: 1, name: "rc stuff", href: "#" }],
-
-	colors: [
-		{ name: "Black", bgColor: "bg-gray-900", selectedColor: "ring-gray-900" },
-		{
-			name: "Heather Grey",
-			bgColor: "bg-gray-400",
-			selectedColor: "ring-gray-400",
-		},
-	],
-	sizes: [{ name: "M", inStock: true }],
 	description: `
     <p>This is a 12mm RC buggy wheel that will fit any modern buggy for 1/10 scale racing.</p>
   `,
@@ -89,7 +77,7 @@ export default function ProductPage() {
 						<div className="grid grid-cols-1 lg:grid-cols-2 lg:grid-rows-3 lg:gap-8">
 							<Suspense fallback={<div>Loading...</div>}>
 								<PreviewComponent
-									url="https://pub-0ec69c7d5c064de8b57f5d594f07bc02.r2.dev/Rear_Buggy_RC_RIM_BBS.stl"
+									url="https://pub-0ec69c7d5c064de8b57f5d594f07bc02.r2.dev/6%20hole%20gear%20v2.stl"
 									onExceedsLimit={() => false}
 									onError={() => (
 										<div>
