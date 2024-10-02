@@ -3,7 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { Radio, RadioGroup } from "@headlessui/react"; 
 import { ColorsResponse } from "../interfaces";
 
-function ColorPicker() {
+
+const ColorPicker: React.FC<Props> = ({filamentType}) => {
   const url = new URL(`https://3dprinter-web-api.benhalverson.workers.dev/colors`);
 
   const fetchColors = async (filamentType: string) => {
@@ -24,7 +25,7 @@ function ColorPicker() {
 
   };
 
-  const { data, error, isLoading } = useColors("PLA");
+  const { data, error, isLoading } = useColors(filamentType);
 
   const [selectedColor, setSelectedColor] = useState<string>("");
 
@@ -79,3 +80,7 @@ function ColorPicker() {
 }
 
 export default ColorPicker;
+
+interface Props {
+  filamentType: string;
+}

@@ -1,7 +1,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useState } from "react";
 import { ShoppingBagIcon, UserIcon } from "@heroicons/react/24/outline";
 import ColorPicker from "../components/colorPicker";
+import FilamentDropdown from '../components/filamentDropdown';
 const PreviewComponent = lazy(() => import("../components/PreviewComponent"));
 
 const product = {
@@ -13,6 +14,7 @@ const product = {
 };
 
 export default function ProductPage() {
+	const [selectedFilament, setSelectedFilament] = useState<string>("PLA");	
 
 	return (
 		<div className="bg-white">
@@ -94,17 +96,12 @@ export default function ProductPage() {
 							
 							<div>
 								<h2 className="text-sm font-medium text-gray-900">Filament Selection</h2>
-								<ul>
-									<li>PLA</li>
-									<li>PETG</li>
-								</ul>
-
-								{/* <ColorPicker /> */}
+									<FilamentDropdown selectedFilament={selectedFilament} setSelectedFilament={setSelectedFilament}/>
 							</div>
 							<div>
 								<h2 className="text-sm font-medium text-gray-900">Color</h2>
 
-								<ColorPicker />
+								<ColorPicker filamentType={selectedFilament}/>
 							</div>
 
 							<button
