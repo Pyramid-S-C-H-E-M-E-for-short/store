@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Radio, RadioGroup } from "@headlessui/react"; 
 import { ColorsResponse } from "../interfaces";
 // const BASE_URL = import.meta.env.VITE_BASE_URL;
-const BASE_URL = "https://rc-store.benhalverson.dev";
+const BASE_URL = "https://3dprinter-web-api.benhalverson.workers.dev";
 
 const ColorPicker: React.FC<Props> = ({filamentType}) => {
   const url = new URL(`${BASE_URL}/colors`);
