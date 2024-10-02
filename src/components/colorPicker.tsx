@@ -2,10 +2,10 @@ import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Radio, RadioGroup } from "@headlessui/react"; 
 import { ColorsResponse } from "../interfaces";
-
+const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const ColorPicker: React.FC<Props> = ({filamentType}) => {
-  const url = new URL(`https://3dprinter-web-api.benhalverson.workers.dev/colors`);
+  const url = new URL(`${BASE_URL}/colors`);
 
   const fetchColors = async (filamentType: string) => {
 
