@@ -5,6 +5,7 @@ import { ColorsResponse } from "../interfaces";
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const ColorPicker: React.FC<Props> = ({filamentType}) => {
+  console.log('env: ', import.meta.env); 
   const url = new URL(`${BASE_URL}/colors`);
 
   const fetchColors = async (filamentType: string) => {
