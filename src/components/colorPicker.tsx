@@ -18,7 +18,7 @@ const ColorPicker: React.FC<Props> = ({filamentType}) => {
   };
 
   const useColors = (filamentType: string) => {
-    return useQuery<ColorsResponse>({
+    return useQuery<ColorsResponse[]>({
       queryKey: ["colors", filamentType],
       queryFn: () => fetchColors(filamentType)
     });
@@ -31,8 +31,7 @@ const ColorPicker: React.FC<Props> = ({filamentType}) => {
 
   useEffect(() => {
     if (data ) {
-      console.log('data', data);
-      setSelectedColor(data[0].colorTag); // Default to the first color
+      setSelectedColor(data[0]?.colorTag); // Default to the first color
     }
   }, [data]);
 
