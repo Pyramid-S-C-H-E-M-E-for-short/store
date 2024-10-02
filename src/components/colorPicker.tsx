@@ -4,23 +4,39 @@ import { Radio, RadioGroup } from "@headlessui/react";
 import { ColorsResponse } from "../interfaces";
 
 function ColorPicker() {
-  const { data, error } = useQuery<ColorsResponse>({
-    queryKey: ["colors"],
-    queryFn: () =>
-      fetch("https://3dprinter-web-api.benhalverson.workers.dev/colors").then(
-        (res) => res.json()
-      ),
-  });
+  const url = new URL(`https://3dprinter-web-api.benhalverson.workers.dev/colors`);
+
+  const fetchColors = async (filamentType: string) => {
+
+    if(filamentType) {
+      url.searchParams.set("filamentType", filamentType);
+    }
+    const response = await fetch(url.toString());
+    return response.json() as Promise<ColorsResponse[]>;
+
+  };
+
+  const useColors = (filamentType: string) => {
+    return useQuery<ColorsResponse>({
+      queryKey: ["colors", filamentType],
+      queryFn: () => fetchColors(filamentType)
+    });
+
+  };
+
+  const { data, error, isLoading } = useColors("PLA");
 
   const [selectedColor, setSelectedColor] = useState<string>("");
 
   useEffect(() => {
-    if (data && data.filaments.length > 0) {
-      setSelectedColor(data.filaments[0].colorTag); // Default to the first color
+    if (data ) {
+      console.log('data', data);
+      setSelectedColor(data[0].colorTag); // Default to the first color
     }
   }, [data]);
 
-  if (error) return <div>No data</div>
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>No data available</div>;
 
   return (
     <fieldset aria-label="Choose a color" className="mt-2">
@@ -29,7 +45,7 @@ function ColorPicker() {
         onChange={setSelectedColor}
         className="flex items-center space-x-3"
       >
-        {data?.filaments.map((color) => (
+        {data?.map((color) => (
           <Radio
             key={color.colorTag}
             value={color.colorTag}

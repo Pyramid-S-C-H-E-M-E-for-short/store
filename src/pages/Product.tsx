@@ -91,7 +91,16 @@ export default function ProductPage() {
 
 					<div className="mt-8 lg:col-span-5">
 						<form>
-							{/* Color picker */}
+							
+							<div>
+								<h2 className="text-sm font-medium text-gray-900">Filament Selection</h2>
+								<ul>
+									<li>PLA</li>
+									<li>PETG</li>
+								</ul>
+
+								{/* <ColorPicker /> */}
+							</div>
 							<div>
 								<h2 className="text-sm font-medium text-gray-900">Color</h2>
 

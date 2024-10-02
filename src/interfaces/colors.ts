@@ -2,7 +2,7 @@
  * The response for the /colors endpoint
  */
 export interface ColorsResponse {
-    filaments: Filament[];
+    data: Filament[];
 }
 
 export interface Filament {
