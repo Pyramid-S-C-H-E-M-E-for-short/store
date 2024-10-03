@@ -1,20 +1,33 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Radio, RadioGroup } from "@headlessui/react"; 
+import Dexie from "dexie";
 import { ColorsResponse } from "../interfaces";
-// const BASE_URL = import.meta.env.VITE_BASE_URL;
 const BASE_URL = "https://3dprinter-web-api.benhalverson.workers.dev";
+const db = new Dexie("ColorCacheDB");
+db.version(1).stores({
+  colors: "filamentType, colors", // Using filamentType as the key
+});
 
 const ColorPicker: React.FC<Props> = ({filamentType}) => {
   const url = new URL(`${BASE_URL}/colors`);
 
   const fetchColors = async (filamentType: string) => {
 
+    const cacheData = await db.table("colors").get(selectedColor);
+    if(cacheData) {
+      console.log('cacheData', cacheData);
+      return cacheData.colors;
+    }
+
     if(filamentType) {
       url.searchParams.set("filamentType", filamentType);
     }
     const response = await fetch(url.toString());
-    return response.json() as Promise<ColorsResponse[]>;
+    const data = await response.json() //as Promise<ColorsResponse[]>;
+
+    await db.table("colors").put({filamentType, colors: data});
+    return data;
 
   };
 
