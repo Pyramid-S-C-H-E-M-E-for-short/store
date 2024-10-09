@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react";
-import { ProductResponse } from '../interfaces';
+// import { ProductResponse } from '../interfaces';
 
 const BASE_URL = "https://3dprinter-web-api.benhalverson.workers.dev/list";
 
@@ -24,8 +24,8 @@ function ProductList() {
 	}, []);
 	return (
 		<ul>
-			{products.map((product, ) => (
-				<li key={product.version}>{product.stl}</li>
+			{products.map((product) => (
+				<li key={product.id}>{product.name}</li>
 			))}
 		</ul>
 	);
@@ -33,3 +33,13 @@ function ProductList() {
 
 export default ProductList;
 
+
+interface ProductResponse {
+	name: string;
+	id: string;
+	stl: string;
+	description: string;
+	image: string;
+	price: number;
+	filamentType: string;
+}

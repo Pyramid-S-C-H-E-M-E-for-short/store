@@ -79,7 +79,7 @@ export default function ProductPage() {
 						<div className="grid grid-cols-1 lg:grid-cols-2 lg:grid-rows-3 lg:gap-8">
 							<Suspense fallback={<div>Loading...</div>}>
 								<PreviewComponent
-									url="https://pub-0ec69c7d5c064de8b57f5d594f07bc02.r2.dev/6%20hole%20gear%20v2.stl"
+									url="https://pub-0ec69c7d5c064de8b57f5d594f07bc02.r2.dev/pyramid.stl"
 									onExceedsLimit={() => false}
 									onError={() => (
 										<div>
