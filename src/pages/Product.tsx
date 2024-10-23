@@ -3,7 +3,6 @@ import { lazy, Suspense, useState } from "react";
 import { ShoppingBagIcon, UserIcon } from "@heroicons/react/24/outline";
 import ColorPicker from "../components/colorPicker";
 import FilamentDropdown from '../components/filamentDropdown';
-import { useColorStore } from '../store/colorStore';
 
 const PreviewComponent = lazy(() => import("../components/PreviewComponent"));
 
@@ -17,7 +16,6 @@ const product = {
 
 export default function ProductPage() {
 	const [selectedFilament, setSelectedFilament] = useState<string>("PLA");	
-	const [selectedColor, setSelectedColor] = useState<string>("");
 
 	return (
 		<div className="bg-white">
@@ -82,7 +80,6 @@ export default function ProductPage() {
 						<div className="grid grid-cols-1 lg:grid-cols-2 lg:grid-rows-3 lg:gap-8">
 							<Suspense fallback={<div>Loading...</div>}>
 								<PreviewComponent
-									color={selectedColor} // Pass selectedColor to PreviewComponent
 									url="https://pub-0ec69c7d5c064de8b57f5d594f07bc02.r2.dev/pyramid.stl"
 									onExceedsLimit={() => false}
 									onError={() => (

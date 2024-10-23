@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { Radio, RadioGroup } from "@headlessui/react"; 
 import { ColorsResponse } from "../interfaces";
 // const BASE_URL = import.meta.env.VITE_BASE_URL;
