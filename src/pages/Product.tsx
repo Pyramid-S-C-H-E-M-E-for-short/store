@@ -3,6 +3,7 @@ import { lazy, Suspense, useState } from "react";
 import { ShoppingBagIcon, UserIcon } from "@heroicons/react/24/outline";
 import ColorPicker from "../components/colorPicker";
 import FilamentDropdown from '../components/filamentDropdown';
+
 const PreviewComponent = lazy(() => import("../components/PreviewComponent"));
 
 const product = {
@@ -93,10 +94,9 @@ export default function ProductPage() {
 
 					<div className="mt-8 lg:col-span-5">
 						<form>
-							
 							<div>
 								<h2 className="text-sm font-medium text-gray-900">Filament Selection</h2>
-									<FilamentDropdown selectedFilament={selectedFilament} setSelectedFilament={setSelectedFilament}/>
+								<FilamentDropdown selectedFilament={selectedFilament} setSelectedFilament={setSelectedFilament} />
 							</div>
 							<div>
 								<h2 className="text-sm font-medium text-gray-900">Color</h2>
