@@ -59,6 +59,7 @@ const ColorPicker: React.FC<Props> = ({filamentType}) => {
               <>
                 <span
                   aria-hidden="true"
+                  aria-labelledby={color.colorTag}
                   className={`h-8 w-8 rounded-full border border-black border-opacity-10`}
                   style={{ backgroundColor: `#${color.hexColor}` }}
                 />
