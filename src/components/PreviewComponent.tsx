@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { usePreviewService } from "../hooks/usePreview";
+import { useColorStore } from '../store/colorStore';
 
 const GRID_SIZE = 250; // in mm
 const LIMIT_DIMENSIONS_MM = { length: 250, width: 250, height: 310 }; // in mm
@@ -19,9 +20,9 @@ const PreviewComponent: React.FC<PreviewComponentProps> = ({
 	onExceedsLimit,
 	onError,
 }) => {
+	const {color} = useColorStore()
 	const previewRef = useRef<HTMLDivElement | null>(null);
-	const { loadModel } =
-		usePreviewService();
+	const { loadModel } = usePreviewService();
 	const scene = useRef(new THREE.Scene()).current;
 	const camera = useRef(
 		new THREE.PerspectiveCamera(
@@ -72,9 +73,10 @@ const PreviewComponent: React.FC<PreviewComponentProps> = ({
 		};
 	}, []);
 
+	// Whenever the URL or color changes, reload the model
 	useEffect(() => {
 		loadModelAndCheckDimensions(url);
-	}, [url]);
+	}, [url, color]);
 
 	const initializeScene = () => {
 		renderer.setSize(600, 400); // Fixed size
@@ -94,7 +96,13 @@ const PreviewComponent: React.FC<PreviewComponentProps> = ({
 		try {
 			const geometry = await loadModel(url);
 			if (geometry) {
-				const material = new THREE.MeshStandardMaterial({ color: 0xb3b3b3 });
+				// Convert color string to hexadecimal number for Three.js
+				// Remove any `#` and convert the string to a number using base 16
+				const hexColor = parseInt(color.replace("#", ""), 16);
+				console.log('hexColor', hexColor);
+
+				const material = new THREE.MeshStandardMaterial({ color: hexColor }); // Apply the hex color
+
 				meshRef.current = new THREE.Mesh(geometry, material);
 
 				let boundingBox = new THREE.Box3().setFromObject(meshRef.current);
@@ -127,7 +135,6 @@ const PreviewComponent: React.FC<PreviewComponentProps> = ({
 					"Invalid file: Could not load the 3D model from the provided file."
 				);
 			}
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		} catch (error: any) {
 			console.error(error);
 			setErrorMessage(error.message);

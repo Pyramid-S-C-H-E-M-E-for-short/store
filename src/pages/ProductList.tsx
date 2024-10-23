@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 // import { ProductResponse } from '../interfaces';
 
 const BASE_URL = "https://3dprinter-web-api.benhalverson.workers.dev/list";
+// const BASE_URL = "http://localhost:8787/products";
 
 function ProductList() {
 	const [products, setProducts] = useState<ProductResponse[]>([]);
@@ -24,8 +25,8 @@ function ProductList() {
 	}, []);
 	return (
 		<ul>
-			{products.map((product) => (
-				<li key={product.id}>{product.name}</li>
+			{products.map((product, i) => (
+				<li key={i}>{product.name}</li>
 			))}
 		</ul>
 	);
