@@ -76,7 +76,7 @@ const PreviewComponent: React.FC<PreviewComponentProps> = ({
 	// Whenever the URL or color changes, reload the model
 	useEffect(() => {
 		loadModelAndCheckDimensions(url);
-	}, [url, color]);
+	}, [url]);
 
 	const initializeScene = () => {
 		renderer.setSize(600, 400); // Fixed size
@@ -177,6 +177,19 @@ const PreviewComponent: React.FC<PreviewComponentProps> = ({
 		scene.add(gridHelper);
 		gridHelperRef.current = gridHelper;
 	};
+
+	const updateMaterialColor = (hexColor: number) => {
+		if (meshRef.current) {
+			const material = new THREE.MeshStandardMaterial({ color: hexColor });
+			meshRef.current.material = material;
+		}
+	};
+
+	useEffect(() => {
+		if (modelLoaded) {
+			updateMaterialColor(parseInt(color.replace("#", ""), 16));
+		}
+	}, [color]);
 
 	const updateDimensions = () => {
 		const boundingBox = new THREE.Box3().setFromObject(meshRef.current!);
