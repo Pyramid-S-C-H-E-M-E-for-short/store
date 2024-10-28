@@ -30,6 +30,9 @@ jobs:
         run: npm ci
 
       - name: Install Node.js dependencies
+        run: npm test
+
+      - name: Install Node.js dependencies
         run: npm run build
 
       # - name: Wrangler global install
