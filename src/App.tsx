@@ -1,17 +1,20 @@
 import { Routes, Route, Outlet, Link } from "react-router-dom";
 import ProductPage from './pages/Product';
 import ProductList from './pages/ProductList';
+import { ColorProvider } from './context/ColorContext';
 
 function App() {
 
   return (
     <>
-    <Routes>
-      <Route path="/" element={<Layout />} />
-      <Route index element={<ProductPage />} />
-      <Route path='list' element={<ProductList />} />
 
-    </Routes>
+     <ColorProvider>
+      <Routes>
+        <Route path="/" element={<Layout />} />
+        <Route index element={<ProductPage />} />
+        <Route path="list" element={<ProductList />} />
+      </Routes>
+    </ColorProvider>
       
     </>
   )

@@ -1,54 +1,48 @@
 import { useEffect } from "react";
-import { Radio, RadioGroup } from "@headlessui/react"; 
+import { Radio, RadioGroup } from "@headlessui/react";
 import { ColorsResponse } from "../interfaces";
-// const BASE_URL = import.meta.env.VITE_BASE_URL;
+import { useColorContext } from "../context/ColorContext";
+
 const BASE_URL = "https://3dprinter-web-api.benhalverson.workers.dev";
 
-import { useColorStore } from "../store/colorStore";
-
-
-const ColorPicker: React.FC<Props> = ({filamentType}) => {
-  const url = new URL(`${BASE_URL}/colors`);
-  const {colorOptions, isLoading, setIsLoading, color, setColorOptions, setColor} = useColorStore();
-
-  const fetchColors = async (filamentType?: string) => {
-
-    if(filamentType) {
-      url.searchParams.set("filamentType", filamentType);
-    }
-    const response = await fetch(url.toString());
-    setColorOptions(await (response.json() as Promise<ColorsResponse[]>));
-    return response
-
-  };
+const ColorPicker: React.FC<Props> = ({ filamentType }) => {
+  const { state, dispatch } = useColorContext();
+  const { colorOptions, isLoading, color } = state;
 
   useEffect(() => {
-    if(filamentType) {
+    const fetchColors = async () => {
+      dispatch({ type: "SET_IS_LOADING", payload: true });
+      try {
+        const url = new URL(`${BASE_URL}/colors`);
+        if (filamentType) url.searchParams.set("filamentType", filamentType);
 
-    setIsLoading(true);
-    fetchColors(filamentType); 
-    }
-    setIsLoading(false);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filamentType]);
-  
+        const response = await fetch(url.toString());
+        const colors = await response.json() as ColorsResponse[];
+        dispatch({ type: "SET_COLOR_OPTIONS", payload: colors });
+        console.log('colors', colors);
+      } catch (error) {
+        console.error("Failed to fetch colors:", error);
+      } finally {
+        dispatch({ type: "SET_IS_LOADING", payload: false });
+      }
+    };
+
+    if (filamentType) fetchColors();
+  }, [filamentType, dispatch]);
 
   if (isLoading) return <div>Loading...</div>;
-  // if (error) return <div>No data available</div>;
 
-  console.log('colorOptions', colorOptions);
-  console.log('color', color)
   return (
     <fieldset aria-label="Choose a color" className="mt-2">
       <RadioGroup
         value={color}
-        onChange={setColor}
+        onChange={(newColor) => dispatch({ type: "SET_COLOR", payload: newColor })}
         className="flex items-center space-x-3"
       >
-        {colorOptions?.map((color, i) => (
+        {colorOptions?.map((colorOption, index) => (
           <Radio
-            key={i}
-            value={color.hexColor}
+            key={`${colorOption.hexColor}-${index}`}
+            value={colorOption.hexColor}
             className={({ checked }) =>
               `relative -m-0.5 flex cursor-pointer items-center justify-center rounded-full p-0.5 focus:outline-none ${
                 checked ? "ring-2 ring-offset-1 ring-blue-500" : ""
@@ -59,11 +53,11 @@ const ColorPicker: React.FC<Props> = ({filamentType}) => {
               <>
                 <span
                   aria-hidden="true"
-                  aria-labelledby={color.colorTag}
-                  className={`h-8 w-8 rounded-full border border-black border-opacity-10`}
-                  style={{ backgroundColor: `#${color.hexColor}` }}
+                  aria-labelledby={colorOption.colorTag}
+                  className="h-8 w-8 rounded-full border border-black border-opacity-10"
+                  style={{ backgroundColor: `#${colorOption.hexColor}` }}
                 />
-                <span className="sr-only">{color.colorTag}</span>
+                <span className="sr-only">{colorOption.colorTag}</span>
                 {checked && (
                   <span
                     className="absolute inset-0 rounded-full ring-2 ring-offset-2"
@@ -77,7 +71,7 @@ const ColorPicker: React.FC<Props> = ({filamentType}) => {
       </RadioGroup>
     </fieldset>
   );
-}
+};
 
 export default ColorPicker;
 
