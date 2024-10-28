@@ -19,7 +19,6 @@ const ColorPicker: React.FC<Props> = ({ filamentType }) => {
         const response = await fetch(url.toString());
         const colors = await response.json() as ColorsResponse[];
         dispatch({ type: "SET_COLOR_OPTIONS", payload: colors });
-        console.log('colors', colors);
       } catch (error) {
         console.error("Failed to fetch colors:", error);
       } finally {

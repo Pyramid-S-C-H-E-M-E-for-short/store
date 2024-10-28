@@ -1,8 +1,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { lazy, Suspense, useState } from "react";
 import { ShoppingBagIcon, UserIcon } from "@heroicons/react/24/outline";
-import ColorPicker from "../components/colorPicker";
-import FilamentDropdown from '../components/filamentDropdown';
+import ColorPicker from "../components/ColorPicker";
+import FilamentDropdown from '../components/FilamentDropdown';
 
 const PreviewComponent = lazy(() => import("../components/PreviewComponent"));
 
