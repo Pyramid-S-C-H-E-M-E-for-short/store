@@ -6,7 +6,7 @@ import React, { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { usePreviewService } from "../hooks/usePreview";
-import { useColorContext } from "../context/ColorContext"; // Import the ColorContext
+import { useColorContext } from "../context/ColorContext";
 
 const GRID_SIZE = 250; // in mm
 const LIMIT_DIMENSIONS_MM = { length: 250, width: 250, height: 310 }; // in mm
@@ -22,8 +22,8 @@ const PreviewComponent: React.FC<PreviewComponentProps> = ({
   onExceedsLimit,
   onError,
 }) => {
-  const { state } = useColorContext(); // Access the context state
-  const { color } = state; // Destructure color from state
+  const { state } = useColorContext();
+  const { color } = state;
 
   const previewRef = useRef<HTMLDivElement | null>(null);
   const { loadModel } = usePreviewService();
@@ -35,6 +35,8 @@ const PreviewComponent: React.FC<PreviewComponentProps> = ({
   const meshRef = useRef<THREE.Mesh | null>(null);
   const gridHelperRef = useRef<THREE.GridHelper | null>(null);
   const controlsRef = useRef<OrbitControls | null>(null);
+  const animationFrameId = useRef<number | null>(null);
+
   const [_dimensions, setDimensions] = useState<{ length: number; width: number; height: number }>({
     length: 0,
     width: 0,
@@ -48,6 +50,12 @@ const PreviewComponent: React.FC<PreviewComponentProps> = ({
     if (previewRef.current) {
       initializeScene();
     }
+    return () => {
+      // Cancel animation on unmount
+      if (animationFrameId.current) {
+        cancelAnimationFrame(animationFrameId.current);
+      }
+    };
   }, []);
 
   useEffect(() => {
@@ -92,48 +100,39 @@ const PreviewComponent: React.FC<PreviewComponentProps> = ({
   };
 
   const loadModelAndCheckDimensions = async (url: string) => {
+    // Dispose of previous mesh, if any
+    if (meshRef.current) {
+      scene.remove(meshRef.current);
+      meshRef.current.geometry.dispose();
+      (meshRef.current.material as THREE.Material).dispose();
+    }
+
     try {
       const geometry = await loadModel(url);
-      if (geometry) {
-        const hexColor = parseInt(color.replace("#", ""), 16); // Convert color to hex
-        const material = new THREE.MeshStandardMaterial({ color: hexColor });
+      if (!geometry) throw new Error("Model loading failed. Geometry is undefined.");
 
-        meshRef.current = new THREE.Mesh(geometry, material);
+      const hexColor = parseInt(color.replace("#", ""), 16);
+      const material = new THREE.MeshStandardMaterial({ color: hexColor });
+      meshRef.current = new THREE.Mesh(geometry, material);
 
-        let boundingBox = new THREE.Box3().setFromObject(meshRef.current);
-        const center = boundingBox.getCenter(new THREE.Vector3());
-        const size = boundingBox.getSize(new THREE.Vector3());
+      const boundingBox = new THREE.Box3().setFromObject(meshRef.current);
+      const center = boundingBox.getCenter(new THREE.Vector3());
+      const size = boundingBox.getSize(new THREE.Vector3());
 
-        checkDimensions(size);
+      checkDimensions(size);
 
-        meshRef.current.rotation.x = Math.PI / 2;
-        meshRef.current.updateMatrixWorld();
+      meshRef.current.rotation.x = Math.PI / 2;
+      meshRef.current.position.copy(center).multiplyScalar(-1);
+      meshRef.current.position.y += size.y / 2;
 
-        const worldDir = new THREE.Vector3();
-        meshRef.current.getWorldDirection(worldDir);
-        if (worldDir.y < 0) {
-          meshRef.current.rotation.x += Math.PI;
-        }
-
-        boundingBox = new THREE.Box3().setFromObject(meshRef.current);
-        boundingBox.getCenter(center);
-        boundingBox.getSize(size);
-
-        checkDimensions(size);
-
-        meshRef.current.position.copy(center).multiplyScalar(-1);
-        meshRef.current.position.y += size.y / 2;
-
-        scene.add(meshRef.current);
-        setModelLoaded(true);
-      } else {
-        throw new Error("Invalid file: Could not load the 3D model from the provided file.");
-      }
-    } catch (error: any) {
-      console.error(error);
-      setErrorMessage(error.message);
+      scene.add(meshRef.current);
+      setModelLoaded(true);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Failed to load model";
+      console.error(message);
+      setErrorMessage(message);
       setExceedsLimit(true);
-      onError(error.message);
+      onError(message);
     }
   };
 
@@ -157,7 +156,7 @@ const PreviewComponent: React.FC<PreviewComponentProps> = ({
   };
 
   const animate = () => {
-    requestAnimationFrame(animate);
+    animationFrameId.current = requestAnimationFrame(animate);
     controlsRef.current!.update();
     renderer.render(scene, camera);
   };
@@ -166,7 +165,6 @@ const PreviewComponent: React.FC<PreviewComponentProps> = ({
     if (gridHelperRef.current) {
       scene.remove(gridHelperRef.current);
     }
-
     const gridHelper = new THREE.GridHelper(GRID_SIZE, GRID_SIZE);
     scene.add(gridHelper);
     gridHelperRef.current = gridHelper;
