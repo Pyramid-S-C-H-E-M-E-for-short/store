@@ -1,8 +1,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { lazy, Suspense, useState } from "react";
 import { ShoppingBagIcon, UserIcon } from "@heroicons/react/24/outline";
-import ColorPicker from "../components/colorPicker";
-import FilamentDropdown from '../components/filamentDropdown';
+import ColorPicker from "../components/ColorPicker";
+import FilamentDropdown from '../components/FilamentDropdown';
 
 const PreviewComponent = lazy(() => import("../components/PreviewComponent"));
 
@@ -78,7 +78,7 @@ export default function ProductPage() {
 						<h2 className="sr-only">Images</h2>
 
 						<div className="grid grid-cols-1 lg:grid-cols-2 lg:grid-rows-3 lg:gap-8">
-							<Suspense fallback={<div>Loading...</div>}>
+							<Suspense fallback={<div data-id="loading">Loading...</div>}>
 								<PreviewComponent
 									url="https://pub-0ec69c7d5c064de8b57f5d594f07bc02.r2.dev/pyramidv10.stl"
 									onExceedsLimit={() => false}
