@@ -84,7 +84,7 @@ const PreviewComponent: React.FC<PreviewComponentProps> = ({
     if (url && color) {
       loadModelAndCheckDimensions(url);
     }
-  }, [url, color]);
+  }, [url]);
 
   const initializeScene = () => {
     renderer.setSize(600, 400); // Fixed size
@@ -178,10 +178,10 @@ const PreviewComponent: React.FC<PreviewComponentProps> = ({
   };
 
   useEffect(() => {
-    if (modelLoaded && color) {
+    if (modelLoaded) {
       updateMaterialColor(parseInt(color.replace("#", ""), 16));
     }
-  }, [color, modelLoaded]);
+  }, [color]);
 
   const updateDimensions = () => {
     const boundingBox = new THREE.Box3().setFromObject(meshRef.current!);
