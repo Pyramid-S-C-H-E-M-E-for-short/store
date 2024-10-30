@@ -9,11 +9,14 @@ function App() {
     <>
 
      <ColorProvider>
-      <Routes>
-        <Route path="/" element={<Layout />} />
-        <Route index element={<ProductPage />} />
-        <Route path="list" element={<ProductList />} />
-      </Routes>
+     <Routes>
+    {/* Set ProductList as the default page */}
+    <Route path="/" element={<Layout />}>
+      <Route index element={<ProductList />} />
+      {/* Route to ProductPage with a dynamic product ID */}
+      <Route path="product/:id" element={<ProductPage />} />
+    </Route>
+  </Routes>
     </ColorProvider>
       
     </>

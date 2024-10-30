@@ -1,21 +1,34 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { lazy, Suspense, useState } from "react";
+import { lazy, Suspense, useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import { ShoppingBagIcon, UserIcon } from "@heroicons/react/24/outline";
 import ColorPicker from "../components/ColorPicker";
-import FilamentDropdown from '../components/FilamentDropdown';
+import FilamentDropdown from "../components/FilamentDropdown";
 
 const PreviewComponent = lazy(() => import("../components/PreviewComponent"));
 
-const product = {
-	name: "RC Wheels",
-	price: "$35",
-	description: `
-    <p>This is a 12mm RC buggy wheel that will fit any modern buggy for 1/10 scale racing.</p>
-  `,
-};
-
 export default function ProductPage() {
-	const [selectedFilament, setSelectedFilament] = useState<string>("PLA");	
+	const { id } = useParams<{ id: string }>();
+	const [product, setProduct] = useState<any | null>(null);
+	const [selectedFilament, setSelectedFilament] = useState<string>("PLA");
+
+	// Fetch product data based on ID
+	useEffect(() => {
+		const fetchProduct = async () => {
+			try {
+				const response = await fetch(`https://3dprinter-web-api.benhalverson.workers.dev/product/${id}`);
+				const data = await response.json();
+				setProduct(data);
+				console.log('data', data);
+			} catch (error) {
+				console.error("Error fetching product:", error);
+			}
+		};
+
+		if (id) fetchProduct();
+	}, [id]);
+
+	if (!product) return <div>Loading product...</div>;
 
 	return (
 		<div className="bg-white">
@@ -79,8 +92,9 @@ export default function ProductPage() {
 
 						<div className="grid grid-cols-1 lg:grid-cols-2 lg:grid-rows-3 lg:gap-8">
 							<Suspense fallback={<div data-id="loading">Loading...</div>}>
+							
 								<PreviewComponent
-									url="https://pub-0ec69c7d5c064de8b57f5d594f07bc02.r2.dev/pyramidv10.stl"
+									url={product.stl} // Use the STL file URL from the API response
 									onExceedsLimit={() => false}
 									onError={() => (
 										<div>
@@ -100,8 +114,7 @@ export default function ProductPage() {
 							</div>
 							<div>
 								<h2 className="text-sm font-medium text-gray-900">Color</h2>
-
-								<ColorPicker filamentType={selectedFilament}/>
+								<ColorPicker filamentType={selectedFilament} />
 							</div>
 
 							<button
