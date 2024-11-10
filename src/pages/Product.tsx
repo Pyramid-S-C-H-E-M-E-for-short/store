@@ -9,7 +9,7 @@ const PreviewComponent = lazy(() => import("../components/PreviewComponent"));
 
 export default function ProductPage() {
 	const { id } = useParams<{ id: string }>();
-	const [product, setProduct] = useState<any | null>(null);
+	const [product, setProduct] = useState<Product| undefined>(undefined);
 	const [selectedFilament, setSelectedFilament] = useState<string>("PLA");
 
 	// Fetch product data based on ID
@@ -17,9 +17,8 @@ export default function ProductPage() {
 		const fetchProduct = async () => {
 			try {
 				const response = await fetch(`https://3dprinter-web-api.benhalverson.workers.dev/product/${id}`);
-				const data = await response.json();
+				const data = await response.json() as Product;
 				setProduct(data);
-				console.log('data', data);
 			} catch (error) {
 				console.error("Error fetching product:", error);
 			}
@@ -140,3 +139,11 @@ export default function ProductPage() {
 		</div>
 	);
 }
+
+	interface Product {
+		name: string;
+		price: string;
+		stl: string;
+		description: string;
+	}
+
