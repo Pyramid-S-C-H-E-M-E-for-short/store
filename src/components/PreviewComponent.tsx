@@ -1,12 +1,9 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { useEffect, useRef, useState } from "react";
-import * as THREE from "three";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-import { usePreviewService } from "../hooks/usePreview";
+import React, { useEffect } from "react";
+import { Canvas, useLoader } from "@react-three/fiber";
+import { OrbitControls } from "@react-three/drei";
 import { useColorContext } from "../context/ColorContext";
+import * as THREE from "three";
+import { STLLoader } from "three/examples/jsm/loaders/STLLoader.js";
 
 const GRID_SIZE = 250; // in mm
 const LIMIT_DIMENSIONS_MM = { length: 250, width: 250, height: 310 }; // in mm
@@ -17,231 +14,92 @@ interface PreviewComponentProps {
   onError: (error: string) => void;
 }
 
-const PreviewComponent: React.FC<PreviewComponentProps> = ({
-  url,
-  onExceedsLimit,
-  onError,
-}) => {
+interface ModelProps {
+  url: string;
+  color: number;
+  onExceedsLimit: (limit: boolean) => void;
+  onError: (error: string) => void;
+}
+
+const Model: React.FC<ModelProps> = ({ url, color, onExceedsLimit, onError }) => {
+  const geometry = useLoader(STLLoader, url);
+
+  useEffect(() => {
+    if (geometry) {
+      geometry.computeBoundingBox();
+      const size = geometry.boundingBox?.getSize(new THREE.Vector3());
+      const center = geometry.boundingBox?.getCenter(new THREE.Vector3());
+
+      if (center) {
+        geometry.translate(-center.x, -center.y, -center.z); // Center the model
+      }
+
+      if (size) {
+        const modelExceedsLimit =
+          size.x > LIMIT_DIMENSIONS_MM.length ||
+          size.y > LIMIT_DIMENSIONS_MM.width ||
+          size.z > LIMIT_DIMENSIONS_MM.height;
+
+        onExceedsLimit(modelExceedsLimit);
+
+        if (modelExceedsLimit) {
+          onError(
+            `Model dimensions exceed our limit of ${LIMIT_DIMENSIONS_MM.length} (L) x ${LIMIT_DIMENSIONS_MM.width} (W) x ${LIMIT_DIMENSIONS_MM.height} (H) mm.`
+          );
+        }
+      }
+    }
+
+    // Clean up geometry when component unmounts
+    return () => {
+      geometry.dispose();
+    };
+  }, [geometry, onExceedsLimit, onError]);
+
+  return (
+    <mesh geometry={geometry} rotation={[Math.PI / 2, 0, 0]} position={[0, 10, 0]}>
+      <meshStandardMaterial color={color} />
+    </mesh>
+  );
+};
+
+const PreviewComponent: React.FC<PreviewComponentProps> = ({ url, onExceedsLimit, onError }) => {
   const { state } = useColorContext();
   const { color } = state;
 
-  const previewRef = useRef<HTMLDivElement | null>(null);
-  const { loadModel } = usePreviewService();
-  const scene = useRef(new THREE.Scene()).current;
-  const camera = useRef(
-    new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
-  ).current;
-  const renderer = useRef(new THREE.WebGLRenderer({ antialias: true })).current;
-  const meshRef = useRef<THREE.Mesh | null>(null);
-  const gridHelperRef = useRef<THREE.GridHelper | null>(null);
-  const controlsRef = useRef<OrbitControls | null>(null);
-  const animationFrameId = useRef<number | null>(null);
-
-  const [_dimensions, setDimensions] = useState<{ length: number; width: number; height: number }>({
-    length: 0,
-    width: 0,
-    height: 0,
-  });
-  const [modelLoaded, setModelLoaded] = useState<boolean>(false);
-  const [_exceedsLimit, setExceedsLimit] = useState<boolean>(false);
-  const [_errorMessage, setErrorMessage] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (previewRef.current) {
-      initializeScene();
-    }
-    return () => {
-      // Cancel animation on unmount
-      if (animationFrameId.current) {
-        cancelAnimationFrame(animationFrameId.current);
-      }
-    };
-  }, []);
-
-  useEffect(() => {
-    if (modelLoaded) {
-      fitCameraToObject(meshRef.current!);
-      updateGrid();
-      updateDimensions();
-    }
-  }, [modelLoaded]);
-
   useEffect(() => {
     const handleResize = () => {
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
+      // Handle resize logic if needed
     };
 
     window.addEventListener("resize", handleResize);
+
+    // Clean up event listener on component unmount
     return () => {
       window.removeEventListener("resize", handleResize);
     };
   }, []);
 
-  // Reload the model whenever the URL or color changes
-  useEffect(() => {
-    if (url && color) {
-      loadModelAndCheckDimensions(url);
-    }
-  }, [url]);
-
-  const initializeScene = () => {
-    renderer.setSize(600, 400); // Fixed size
-    previewRef.current!.appendChild(renderer.domElement);
-    camera.position.z = 500;
-    scene.add(new THREE.AmbientLight(0xffffff, 0.5));
-    scene.add(new THREE.DirectionalLight(0xffffff, 0.5));
-
-    renderer.setClearColor(0xf0f0f0); // A slightly darker white color
-
-    controlsRef.current = new OrbitControls(camera, renderer.domElement);
-    animate();
-  };
-
-  const loadModelAndCheckDimensions = async (url: string) => {
-    // Dispose of previous mesh, if any
-    if (meshRef.current) {
-      scene.remove(meshRef.current);
-      meshRef.current.geometry.dispose();
-      (meshRef.current.material as THREE.Material).dispose();
-    }
-
-    try {
-      const geometry = await loadModel(url);
-      if (!geometry) throw new Error("Model loading failed. Geometry is undefined.");
-
-      const hexColor = parseInt(color.replace("#", ""), 16);
-      const material = new THREE.MeshStandardMaterial({ color: hexColor });
-      meshRef.current = new THREE.Mesh(geometry, material);
-
-      const boundingBox = new THREE.Box3().setFromObject(meshRef.current);
-      const center = boundingBox.getCenter(new THREE.Vector3());
-      const size = boundingBox.getSize(new THREE.Vector3());
-
-      checkDimensions(size);
-
-      meshRef.current.rotation.x = Math.PI / 2;
-      meshRef.current.position.copy(center).multiplyScalar(-1);
-      meshRef.current.position.y += size.y / 2;
-
-      scene.add(meshRef.current);
-      setModelLoaded(true);
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : "Failed to load model";
-      console.error(message);
-      setErrorMessage(message);
-      setExceedsLimit(true);
-      onError(message);
-    }
-  };
-
-  const fitCameraToObject = (object: THREE.Object3D, offset = 2) => {
-    const boundingBox = new THREE.Box3().setFromObject(object);
-    const center = boundingBox.getCenter(new THREE.Vector3());
-    const size = boundingBox.getSize(new THREE.Vector3());
-
-    const maxDim = Math.max(size.x, size.y, size.z);
-    const fov = camera.fov * (Math.PI / 180);
-    const cameraZ = Math.abs(maxDim / (2 * Math.tan(fov / 2)));
-
-    camera.position.set(center.x, size.y / 2, cameraZ * offset);
-    camera.lookAt(center.add(new THREE.Vector3(0, size.y / 2, 0)));
-
-    if (controlsRef.current) {
-      controlsRef.current.target = center;
-    }
-
-    camera.updateProjectionMatrix();
-  };
-
-  const animate = () => {
-    animationFrameId.current = requestAnimationFrame(animate);
-    controlsRef.current!.update();
-    renderer.render(scene, camera);
-  };
-
-  const updateGrid = () => {
-    if (gridHelperRef.current) {
-      scene.remove(gridHelperRef.current);
-    }
-    const gridHelper = new THREE.GridHelper(GRID_SIZE, GRID_SIZE);
-    scene.add(gridHelper);
-    gridHelperRef.current = gridHelper;
-  };
-
-  const updateMaterialColor = (hexColor: number) => {
-    if (meshRef.current) {
-      const material = new THREE.MeshStandardMaterial({ color: hexColor });
-      meshRef.current.material = material;
-    }
-  };
-
-  useEffect(() => {
-    if (modelLoaded) {
-      updateMaterialColor(parseInt(color.replace("#", ""), 16));
-    }
-  }, [color]);
-
-  const updateDimensions = () => {
-    const boundingBox = new THREE.Box3().setFromObject(meshRef.current!);
-    const size = boundingBox.getSize(new THREE.Vector3());
-
-    if (size.x === 0 || size.y === 0 || size.z === 0) {
-      setError("Invalid model: The model dimensions are zero.");
-      return;
-    }
-
-    setDimensions({
-      length: parseFloat(size.x.toFixed(2)),
-      width: parseFloat(size.y.toFixed(2)),
-      height: parseFloat(size.z.toFixed(2)),
-    });
-
-    const modelExceedsLimit =
-      size.x > LIMIT_DIMENSIONS_MM.length ||
-      size.y > LIMIT_DIMENSIONS_MM.width ||
-      size.z > LIMIT_DIMENSIONS_MM.height;
-
-    setExceedsLimit(modelExceedsLimit);
-    onExceedsLimit(modelExceedsLimit);
-  };
-
-  const checkDimensions = (size: THREE.Vector3) => {
-    if (size.x === 0 || size.y === 0 || size.z === 0) {
-      setError("Invalid model: The model dimensions are zero.");
-      return;
-    }
-
-    setDimensions({
-      length: parseFloat(size.x.toFixed(2)),
-      width: parseFloat(size.y.toFixed(2)),
-      height: parseFloat(size.z.toFixed(2)),
-    });
-
-    const modelExceedsLimit =
-      size.x > LIMIT_DIMENSIONS_MM.length ||
-      size.y > LIMIT_DIMENSIONS_MM.width ||
-      size.z > LIMIT_DIMENSIONS_MM.height;
-
-    if (modelExceedsLimit) {
-      setError(
-        `Model dimensions exceed our limit of ${LIMIT_DIMENSIONS_MM.length} (L) x ${LIMIT_DIMENSIONS_MM.width} (W) x ${LIMIT_DIMENSIONS_MM.height} (H) mm. Please choose a smaller model.`
-      );
-    }
-  };
-
-  const setError = (message: string) => {
-    setErrorMessage(message);
-    setExceedsLimit(true);
-    onError(message);
-  };
-
   return (
     <div className="flex flex-col items-center justify-center">
-      <div className="relative">
-        <div ref={previewRef}></div>
-      </div>
+      <Canvas
+        style={{ width: "600px", height: "400px" }}
+        camera={{ fov: 50, position: [0, 0, 800] }}
+        dpr={Math.min(window.devicePixelRatio, 1)} // Lower resolution for resource management
+      >
+        <ambientLight intensity={0.5} />
+        <directionalLight position={[1, 1, 1]} intensity={0.5} />
+        <OrbitControls />
+        <gridHelper args={[GRID_SIZE, GRID_SIZE]} />
+        {url && (
+          <Model
+            url={url}
+            color={parseInt(color.replace("#", ""), 16)}
+            onExceedsLimit={onExceedsLimit}
+            onError={onError}
+          />
+        )}
+      </Canvas>
     </div>
   );
 };
