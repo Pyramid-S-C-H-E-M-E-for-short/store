@@ -31,8 +31,3 @@ jobs:
       - name: Build Project
         run: npm run build # Ensure this outputs to the `dist` directory
 
-      - name: Upload Build Artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: build-artifact
-          path: dist
