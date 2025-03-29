@@ -41,7 +41,8 @@ export default function ProductPage() {
 	if (!product) return <div>Loading product...</div>;
 
 	const handleAddToCart = () => {
-		console.log('clicked')
+		console.log('clicked', product);
+		
 		if (!product) return;
 		addToCart({
 			id: product.id,
