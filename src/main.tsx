@@ -21,5 +21,4 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     </BrowserRouter>
   </React.StrictMode>,
 )
-import { hash } from 'three/webgpu';
 
