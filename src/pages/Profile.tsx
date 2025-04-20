@@ -66,7 +66,6 @@ const Profile = () => {
           },
           pubKeyCredParams: [
             { type: 'public-key', alg: -7 }, 
-            { type: 'public-key', alg: -257 }, 
           ],
           rp: { id: 'rc-store.benhalverson.dev', name: "Lulu's Raceshop" },
         },
