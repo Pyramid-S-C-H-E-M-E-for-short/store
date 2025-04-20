@@ -6,7 +6,8 @@ const Signup: React.FC = () => {
 	const [password, setPassword] = useState("");
 	const [message, setMessage] = useState("");
 
-	const BASE_URL = "http://localhost:8787";
+	// const BASE_URL = "http://localhost:8787";
+	const BASE_URL = "https://3dprinter-web-api.benhalverson.workers.dev";
 
 	const handleSignup = async () => {
 		try {
