@@ -2,7 +2,8 @@
 import { useState } from "react";
 
 const Signin = () => {
-	const BASE_URL = "http://localhost:8787";
+	// const BASE_URL = "http://localhost:8787";
+	const BASE_URL = "https://3dprinter-web-api.benhalverson.workers.dev";
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [message, setMessage] = useState("");
@@ -81,7 +82,9 @@ const Signin = () => {
 				userId,
 				response: {
 					id: credential.id,
-					rawId: btoa(String.fromCharCode(...new Uint8Array(credential.rawId))),
+					// rawId: btoa(String.fromCharCode(...new Uint8Array(credential.rawId))),
+          rawId: btoa(String.fromCharCode(...new Uint8Array(credential.rawId))),
+
 					type: credential.type,
 					response: {
 						authenticatorData: btoa(
