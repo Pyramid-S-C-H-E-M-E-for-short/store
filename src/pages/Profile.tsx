@@ -65,7 +65,7 @@ const Profile = () => {
             name: '',
           },
           pubKeyCredParams: [],
-          rp: { id: 'localhost', name: "Lulu's Raceshop" },
+          rp: { id: 'rc-store.benhalverson.dev', name: "Lulu's Raceshop" },
         },
       })) as PublicKeyCredential | null;
       console.log('credential:', credential);
