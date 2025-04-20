@@ -36,7 +36,7 @@ const Signup: React.FC = () => {
 				return;
 			}
 
-			const options = await beginRes.json();
+			const options = await beginRes.json() as any;
 
 			// 3. Call WebAuthn API
 			const credential = (await navigator.credentials.create({

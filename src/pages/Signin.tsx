@@ -135,7 +135,7 @@ const Signin = () => {
 			});
 
 			if (!finishRes.ok) {
-				const { error } = await finishRes.json();
+				const { error } = await finishRes.json() as any;
 				setMessage("Authentication failed: " + error);
 				return;
 			}

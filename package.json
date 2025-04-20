@@ -10,8 +10,8 @@
     "test:watch": "vitest --watch",
     "test:coverage": "vitest --coverage",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "npm run build && wrangler pages dev ./dist",
-    "deploy": "npm run build && wrangler pages deploy ./dist"
+    "preview": "pnpm run build && wrangler pages dev ./dist",
+    "deploy": "pnpm run build && wrangler pages deploy ./dist"
   },
   "dependencies": {
     "@headlessui/react": "^2.1.4",
@@ -34,6 +34,7 @@
     "@cloudflare/workers-types": "^4.20240821.1",
     "@testing-library/jest-dom": "^6.6.2",
     "@testing-library/react": "^16.0.1",
+    "@testing-library/user-event": "^14.6.1",
     "@types/jest": "^29.5.14",
     "@types/mocha": "^10.0.9",
     "@types/react": "^18.3.3",
