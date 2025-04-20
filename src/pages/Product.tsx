@@ -16,7 +16,8 @@ export default function ProductPage() {
 	useEffect(() => {
 		const fetchProduct = async () => {
 			try {
-				const response = await fetch(`https://3dprinter-web-api.benhalverson.workers.dev/product/${id}`);
+				// const response = await fetch(`https://3dprinter-web-api.benhalverson.workers.dev/product/${id}`);
+				const response = await fetch(`http://localhost:8787/product/${id}`);
 				const data = await response.json() as Product;
 				setProduct(data);
 			} catch (error) {
