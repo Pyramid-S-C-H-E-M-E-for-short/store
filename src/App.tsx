@@ -40,6 +40,8 @@ function Layout() {
         <ul>
           <li>
             <Link to="/">Home</Link>
+            <Link to="/signup">Signup</Link>
+            <Link to="/signin">Signin</Link>
           </li>
         </ul>
       </nav>
