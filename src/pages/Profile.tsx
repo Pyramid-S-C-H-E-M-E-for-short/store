@@ -1,8 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from 'react'
-
-// const BASE_URL = 'http://localhost:8787'
-const BASE_URL = "https://3dprinter-web-api.benhalverson.workers.dev";
+import { BASE_URL } from '../config';
 
 const Profile = () => {
   const [profile, setProfile] = useState<any>(null)

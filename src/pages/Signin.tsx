@@ -4,9 +4,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "react-hot-toast";
 import { useState } from "react";
-
-// const BASE_URL = "https://3dprinter-web-api.benhalverson.workers.dev";
-const BASE_URL = "http://localhost:8787";
+import { BASE_URL } from "../config";
 
 const base64urlToUint8Array = (input: string): Uint8Array => {
 	const base64 = input.replace(/-/g, "+").replace(/_/g, "/").padEnd(Math.ceil(input.length / 4) * 4, "=");

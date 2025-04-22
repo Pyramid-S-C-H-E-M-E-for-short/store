@@ -5,8 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Tab } from "@headlessui/react";
 import { toast } from "react-hot-toast";
 import { bufferToBase64, base64urlToUint8Array } from "../utils/webauthn";
-
-const BASE_URL = "https://3dprinter-web-api.benhalverson.workers.dev";
+import { BASE_URL } from '../config';
 
 const schema = z.object({
 	email: z.string().email({ message: "Invalid email" }),

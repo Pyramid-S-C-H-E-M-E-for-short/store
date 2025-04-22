@@ -1,10 +1,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react";
 import { Link } from 'react-router-dom';
-// import { ProductResponse } from '../interfaces';
+import { BASE_URL } from '../config';
 
-const BASE_URL = "https://3dprinter-web-api.benhalverson.workers.dev/products";
-// const BASE_URL = "http://localhost:8787/products";
 
 function ProductList() {
 	const [products, setProducts] = useState<ProductResponse[]>([]);

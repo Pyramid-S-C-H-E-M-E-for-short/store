@@ -2,8 +2,8 @@ import { useEffect } from "react";
 import { Radio, RadioGroup } from "@headlessui/react";
 import { ColorsResponse } from "../interfaces";
 import { useColorContext } from "../context/ColorContext";
+import { BASE_URL } from '../config';
 
-const BASE_URL = "https://3dprinter-web-api.benhalverson.workers.dev";
 
 const ColorPicker: React.FC<Props> = ({ filamentType }) => {
   const { state, dispatch } = useColorContext();
