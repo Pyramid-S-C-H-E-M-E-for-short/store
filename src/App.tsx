@@ -1,4 +1,5 @@
 import { Routes, Route, Outlet, Link } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
 import ProductPage from './pages/Product';
 import ProductList from './pages/ProductList';
 import { ColorProvider } from './context/ColorContext';
@@ -12,6 +13,7 @@ function App() {
     <>
 
      <ColorProvider>
+     <Toaster position="top-right" />
      <Routes>
     {/* Set ProductList as the default page */}
     <Route path="/" element={<Layout />}>
