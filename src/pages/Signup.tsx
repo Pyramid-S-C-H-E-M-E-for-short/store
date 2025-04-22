@@ -31,7 +31,7 @@ const Signup = () => {
 	const handlePasswordSignup = async (data: SignupFormData) => {
 		const toastId = toast.loading("Signing up...");
 		try {
-			const res = await fetch(`${BASE_URL}/signup`, {
+			const res = await fetch(`${BASE_URL}/auth/signup`, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				credentials: "include",
@@ -56,7 +56,7 @@ const Signup = () => {
 
 		const toastId = toast.loading("Creating passkey account...");
 		try {
-			const res = await fetch(`${BASE_URL}/signup-passkey-only`, {
+			const res = await fetch(`${BASE_URL}/auth/signup-passkey-only`, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				credentials: "include",
