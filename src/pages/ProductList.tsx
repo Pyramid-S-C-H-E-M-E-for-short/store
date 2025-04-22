@@ -7,7 +7,7 @@ import { BASE_URL } from '../config';
 function ProductList() {
 	const [products, setProducts] = useState<ProductResponse[]>([]);
 	const getData = async () => {
-		const response = await fetch(BASE_URL);
+		const response = await fetch(`${BASE_URL}/products`);
 
 		try {
 			const data = (await response.json()) as ProductResponse[];

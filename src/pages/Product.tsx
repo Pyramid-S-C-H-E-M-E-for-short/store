@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 import { ShoppingBagIcon, UserIcon } from "@heroicons/react/24/outline";
 import ColorPicker from "../components/ColorPicker";
 import FilamentDropdown from "../components/FilamentDropdown";
+import { BASE_URL } from '../config';
 
 const PreviewComponent = lazy(() => import("../components/PreviewComponent"));
 
@@ -16,8 +17,7 @@ export default function ProductPage() {
 	useEffect(() => {
 		const fetchProduct = async () => {
 			try {
-				const response = await fetch(`https://3dprinter-web-api.benhalverson.workers.dev/product/${id}`);
-				// const response = await fetch(`http://localhost:8787/product/${id}`);
+				const response = await fetch(`${BASE_URL}/product/${id}`);
 				const data = await response.json() as Product;
 				setProduct(data);
 			} catch (error) {
