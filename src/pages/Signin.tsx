@@ -6,18 +6,16 @@ import { toast } from "react-hot-toast";
 import { useState } from "react";
 
 // const BASE_URL = "https://3dprinter-web-api.benhalverson.workers.dev";
-const BASE_URL = "http://localhost:8787"
+const BASE_URL = "http://localhost:8787";
 
 const base64urlToUint8Array = (input: string): Uint8Array => {
-	const base64 = input
-		.replace(/-/g, "+")
-		.replace(/_/g, "/")
-		.padEnd(Math.ceil(input.length / 4) * 4, "=");
+	const base64 = input.replace(/-/g, "+").replace(/_/g, "/").padEnd(Math.ceil(input.length / 4) * 4, "=");
 	return Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
 };
 
-const bufferToBase64 = (buffer: ArrayBuffer): string => {
-	return btoa(String.fromCharCode(...new Uint8Array(buffer)));
+const bufferToBase64 = (buffer: ArrayBuffer | ArrayBufferView): string => {
+	const arrayBuffer = buffer instanceof ArrayBuffer ? buffer : buffer.buffer;
+	return btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
 };
 
 // zod schema
@@ -27,6 +25,10 @@ const schema = z.object({
 });
 
 type FormData = z.infer<typeof schema>;
+
+type AuthBeginResponse = {
+	options: PublicKeyCredentialRequestOptions;
+};
 
 const Signin = () => {
 	const navigate = useNavigate();
@@ -55,8 +57,12 @@ const Signin = () => {
 			if (!res.ok) throw new Error("Invalid credentials");
 			toast.success("Signed in!", { id: toastId });
 			navigate("/profile");
-		} catch (err: any) {
-			toast.error(`Login failed: ${err.message}`, { id: toastId });
+		} catch (err: unknown) {
+			if (err instanceof Error) {
+				toast.error(`Login failed: ${err.message}`, { id: toastId });
+			} else {
+				toast.error("Login failed", { id: toastId });
+			}
 		} finally {
 			setLoading(false);
 		}
@@ -80,25 +86,26 @@ const Signin = () => {
 				body: JSON.stringify({ email }),
 			});
 
-			if (!beginRes.ok)
-				throw new Error("User not registered or no passkey found");
+			if (!beginRes.ok) throw new Error("User not registered or no passkey found");
 
-			const { options, userId } = await beginRes.json()
-			options.challenge = base64urlToUint8Array(options.challenge);
-			options.allowCredentials = options.allowCredentials.map((cred: any) => ({
+			const { options } = (await beginRes.json()) as AuthBeginResponse;
+
+			options.challenge = base64urlToUint8Array(options.challenge as unknown as string).buffer;
+			options.allowCredentials = options.allowCredentials?.map((cred) => ({
 				...cred,
-				id: base64urlToUint8Array(cred.id),
+				id: cred.id
 			}));
 
 			const credential = (await navigator.credentials.get({
 				publicKey: options,
-			})) as PublicKeyCredential;
+			})) as PublicKeyCredential | null;
+
 			if (!credential) throw new Error("User cancelled passkey login");
 
 			const authResp = credential.response as AuthenticatorAssertionResponse;
 
 			const payload = {
-				userId,
+				email,
 				response: {
 					id: credential.id,
 					rawId: bufferToBase64(credential.rawId),
@@ -107,12 +114,11 @@ const Signin = () => {
 						authenticatorData: bufferToBase64(authResp.authenticatorData),
 						clientDataJSON: bufferToBase64(authResp.clientDataJSON),
 						signature: bufferToBase64(authResp.signature),
-						userHandle: authResp.userHandle
-							? bufferToBase64(authResp.userHandle)
-							: null,
+						userHandle: authResp.userHandle ? bufferToBase64(authResp.userHandle) : null,
 					},
 				},
 			};
+			
 
 			const finishRes = await fetch(`${BASE_URL}/webauthn/auth/finish`, {
 				method: "POST",
@@ -122,14 +128,18 @@ const Signin = () => {
 			});
 
 			if (!finishRes.ok) {
-				const { error } = await finishRes.json();
-				throw new Error(error || "Passkey verification failed");
+				const result = (await finishRes.json()) as { error?: string };
+				throw new Error(result.error || "Passkey verification failed");
 			}
 
 			toast.success("Passkey login successful!", { id: toastId });
 			navigate("/profile");
-		} catch (err: any) {
-			toast.error(`Login failed: ${err.message}`, { id: toastId });
+		} catch (err: unknown) {
+			if (err instanceof Error) {
+				toast.error(`Login failed: ${err.message}`, { id: toastId });
+			} else {
+				toast.error("Login failed", { id: toastId });
+			}
 		} finally {
 			setLoading(false);
 		}
@@ -137,42 +147,27 @@ const Signin = () => {
 
 	return (
 		<div className="max-w-md mx-auto mt-10 p-6 border border-gray-300 rounded-lg shadow-sm bg-white dark:bg-gray-900 dark:border-gray-700">
-			<h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-100">
-				Sign In
-			</h2>
+			<h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-100">Sign In</h2>
 
-			<form
-				onSubmit={handleSubmit(onSubmitPasswordLogin)}
-				className="space-y-4"
-			>
+			<form onSubmit={handleSubmit(onSubmitPasswordLogin)} className="space-y-4">
 				<div>
-					<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-						Email
-					</label>
+					<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
 					<input
 						type="email"
 						{...register("email")}
 						className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-blue-300 dark:bg-gray-800 dark:text-white"
 					/>
-					{errors.email && (
-						<p className="text-sm text-red-600 mt-1">{errors.email.message}</p>
-					)}
+					{errors.email && <p className="text-sm text-red-600 mt-1">{errors.email.message}</p>}
 				</div>
 
 				<div>
-					<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-						Password
-					</label>
+					<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Password</label>
 					<input
 						type="password"
 						{...register("password")}
 						className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-blue-300 dark:bg-gray-800 dark:text-white"
 					/>
-					{errors.password && (
-						<p className="text-sm text-red-600 mt-1">
-							{errors.password.message}
-						</p>
-					)}
+					{errors.password && <p className="text-sm text-red-600 mt-1">{errors.password.message}</p>}
 				</div>
 
 				<div className="flex gap-3">
