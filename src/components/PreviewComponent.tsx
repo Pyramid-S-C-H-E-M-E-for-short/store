@@ -9,6 +9,7 @@ const GRID_SIZE = 250; // in mm
 const LIMIT_DIMENSIONS_MM = { length: 250, width: 250, height: 310 }; // in mm
 
 interface PreviewComponentProps {
+  color: string;
   url: string;
   onExceedsLimit: (limit: boolean) => void;
   onError: (error: string) => void;

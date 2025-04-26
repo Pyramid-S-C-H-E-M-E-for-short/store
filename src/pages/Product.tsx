@@ -5,10 +5,12 @@ import { ShoppingBagIcon, UserIcon } from "@heroicons/react/24/outline";
 import ColorPicker from "../components/ColorPicker";
 import FilamentDropdown from "../components/FilamentDropdown";
 import { BASE_URL } from '../config';
+import { useColorContext } from '../context/ColorContext';
 
 const PreviewComponent = lazy(() => import("../components/PreviewComponent"));
 
 export default function ProductPage() {
+	const { dispatch } = useColorContext();
 	const { id } = useParams<{ id: string }>();
 	const [product, setProduct] = useState<Product| undefined>(undefined);
 	const [selectedFilament, setSelectedFilament] = useState<string>("PLA");
@@ -17,16 +19,20 @@ export default function ProductPage() {
 	useEffect(() => {
 		const fetchProduct = async () => {
 			try {
-				const response = await fetch(`${BASE_URL}/product/${id}`);
+				const response = await fetch(`${BASE_URL}/product/${id}`)
 				const data = await response.json() as Product;
 				setProduct(data);
+
+				if(data.color) {
+					dispatch({ type: "SET_INITIAL_COLOR", payload: data.color });
+				}
 			} catch (error) {
 				console.error("Error fetching product:", error);
 			}
 		};
 
 		if (id) fetchProduct();
-	}, [id]);
+	}, [id, dispatch]);
 
 	if (!product) return <div>Loading product...</div>;
 
@@ -92,9 +98,9 @@ export default function ProductPage() {
 
 						<div className="grid grid-cols-1 lg:grid-cols-2 lg:grid-rows-3 lg:gap-8">
 							<Suspense fallback={<div data-id="loading">Loading...</div>}>
-							
 								<PreviewComponent
-									url={product.stl} // Use the STL file URL from the API response
+									color={product.color} 
+									url={product.stl}
 									onExceedsLimit={() => false}
 									onError={() => (
 										<div>
@@ -146,5 +152,6 @@ export default function ProductPage() {
 		price: string;
 		stl: string;
 		description: string;
+		color: string;
 	}
 

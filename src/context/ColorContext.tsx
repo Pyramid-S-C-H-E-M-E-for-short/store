@@ -11,7 +11,8 @@ interface ColorState {
 type ColorAction =
   | { type: "SET_COLOR_OPTIONS"; payload: ColorsResponse[] }
   | { type: "SET_COLOR"; payload: string }
-  | { type: "SET_IS_LOADING"; payload: boolean };
+  | { type: "SET_IS_LOADING"; payload: boolean }
+  | { type: "SET_INITIAL_COLOR"; payload: string};
 
 const initialState: ColorState = {
   colorOptions: [],
@@ -34,7 +35,6 @@ const colorReducer = (state: ColorState, action: ColorAction): ColorState => {
       return {
         ...state,
         colorOptions: action.payload,
-        // Only set color initially if not already initialized
         color: !state.hasInitialized && action.payload.length > 0 ? action.payload[0].hexColor : state.color,
         hasInitialized: true,
       };
@@ -42,10 +42,13 @@ const colorReducer = (state: ColorState, action: ColorAction): ColorState => {
       return { ...state, color: action.payload };
     case "SET_IS_LOADING":
       return { ...state, isLoading: action.payload };
+    case "SET_INITIAL_COLOR":
+      return { ...state, color: action.payload, hasInitialized: true }; // mark initialized
     default:
       return state;
   }
 };
+
 
 export const ColorProvider = ({ children }: { children: ReactNode }) => {
   const [state, dispatch] = useReducer(colorReducer, initialState);
