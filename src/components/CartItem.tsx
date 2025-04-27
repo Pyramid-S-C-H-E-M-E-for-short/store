@@ -16,7 +16,7 @@ const CartItem = ({ name, imageUrl, price, quantity}: CartItemsProps) => {
           <h2 className="font-semibold">{name}</h2>
           <p className="text-gray-500">Qty: {quantity}</p>
         </div>
-        <div className="flext items-center space-x-6">
+        <div className="flex items-center space-x-6">
           <p className="text-gray-500">${(price * quantity).toFixed(2)}</p>
         </div>
         <button className="text-red-500 hover:text-red-700">

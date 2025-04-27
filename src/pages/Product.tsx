@@ -14,7 +14,6 @@ export default function ProductPage() {
 	const { dispatch, state } = useColorContext();
 	const {  cart, addToCart } = useCart();
 	const [quantity, setQuantity] = useState(1);
-	console.log("quantity", quantity);
 
 	const { id } = useParams<{ id: string }>();
 	const [product, setProduct] = useState<Product | undefined>(undefined);
