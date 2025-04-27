@@ -1,19 +1,22 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { lazy, Suspense, useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { ShoppingBagIcon, UserIcon } from "@heroicons/react/24/outline";
+
 import ColorPicker from "../components/ColorPicker";
 import FilamentDropdown from "../components/FilamentDropdown";
 import { BASE_URL } from '../config';
 import { useColorContext } from '../context/ColorContext';
+import { useCart } from "../context/CartContext";
 
 const PreviewComponent = lazy(() => import("../components/PreviewComponent"));
 
 export default function ProductPage() {
 	const { dispatch } = useColorContext();
 	const { id } = useParams<{ id: string }>();
-	const [product, setProduct] = useState<Product| undefined>(undefined);
+	const [product, setProduct] = useState<Product | undefined>(undefined);
 	const [selectedFilament, setSelectedFilament] = useState<string>("PLA");
+
+	const  {addToCart} = useCart();
 
 	// Fetch product data based on ID
 	useEffect(() => {
@@ -21,6 +24,7 @@ export default function ProductPage() {
 			try {
 				const response = await fetch(`${BASE_URL}/product/${id}`)
 				const data = await response.json() as Product;
+
 				setProduct(data);
 
 				if(data.color) {
@@ -36,50 +40,20 @@ export default function ProductPage() {
 
 	if (!product) return <div>Loading product...</div>;
 
+	const handleAddToCart = () => {
+		console.log('clicked', product);
+		
+		if (!product) return;
+		addToCart({
+			id: product.id,
+			name: product.name,
+			price: product.price,
+			filament: selectedFilament,
+		});
+	};
+
 	return (
 		<div className="bg-white">
-			<header className="relative bg-white">
-				<nav
-					aria-label="Top"
-					className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"
-				>
-					<div className="border-b border-gray-200">
-						<div className="flex h-16 items-center justify-between">
-							{/* Logo */}
-							<a href="#" className="flex">
-								<span className="sr-only">RC stuff</span>
-								RC Stuff
-							</a>
-
-							<div className="flex flex-1 items-center justify-end">
-								{/* Account */}
-								<a
-									href="#"
-									className="p-2 text-gray-400 hover:text-gray-500 lg:ml-4"
-								>
-									<span className="sr-only">Account</span>
-									<UserIcon aria-hidden="true" className="h-6 w-6" />
-								</a>
-
-								{/* Cart */}
-								<div className="ml-4 flow-root lg:ml-6">
-									<a href="#" className="group -m-2 flex items-center p-2">
-										<ShoppingBagIcon
-											aria-hidden="true"
-											className="h-6 w-6 flex-shrink-0 text-gray-400 group-hover:text-gray-500"
-										/>
-										<span className="ml-2 text-sm font-medium text-gray-700 group-hover:text-gray-800">
-											0
-										</span>
-										<span className="sr-only">items in cart, view bag</span>
-									</a>
-								</div>
-							</div>
-						</div>
-					</div>
-				</nav>
-			</header>
-
 			<main className="mx-auto mt-8 max-w-2xl px-4 pb-16 sm:px-6 sm:pb-24 lg:max-w-7xl lg:px-8">
 				<div className="lg:grid lg:auto-rows-min lg:grid-cols-12 lg:gap-x-8">
 					<div className="lg:col-span-5 lg:col-start-8">
@@ -115,8 +89,13 @@ export default function ProductPage() {
 					<div className="mt-8 lg:col-span-5">
 						<form>
 							<div>
-								<h2 className="text-sm font-medium text-gray-900">Filament Selection</h2>
-								<FilamentDropdown selectedFilament={selectedFilament} setSelectedFilament={setSelectedFilament} />
+								<h2 className="text-sm font-medium text-gray-900">
+									Filament Selection
+								</h2>
+								<FilamentDropdown
+									selectedFilament={selectedFilament}
+									setSelectedFilament={setSelectedFilament}
+								/>
 							</div>
 							<div>
 								<h2 className="text-sm font-medium text-gray-900">Color</h2>
@@ -124,7 +103,8 @@ export default function ProductPage() {
 							</div>
 
 							<button
-								type="submit"
+								onClick={handleAddToCart}
+								type="button"
 								className="mt-8 flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 px-8 py-3 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
 							>
 								Add to cart
@@ -148,6 +128,7 @@ export default function ProductPage() {
 }
 
 	interface Product {
+		id: string;
 		name: string;
 		price: string;
 		stl: string;

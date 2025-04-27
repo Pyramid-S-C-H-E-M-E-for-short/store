@@ -7,11 +7,14 @@ import Signup from './pages/Signup';
 import Profile from './pages/Profile';
 import Signin from './pages/Signin';
 import { Layout } from './components/Layout';
+import Checkout from './pages/Checkout';
+import { CartProvider } from './context/CartContext';
 
 function App() {
   return (
     <>
 
+			<CartProvider>
      <ColorProvider>
      <Toaster position="top-right" />
      <Routes>
@@ -21,12 +24,13 @@ function App() {
       <Route path="signup" element={<Signup />} />
       <Route path="signin" element={<Signin />} />
       <Route path="profile" element={<Profile />} />
+			<Route path="checkout" element={<Checkout />} />
       {/* Route to ProductPage with a dynamic product ID */}
       <Route path="product/:id" element={<ProductPage />} />
     </Route>
   </Routes>
     </ColorProvider>
-      
+      </CartProvider>
     </>
   )
 }

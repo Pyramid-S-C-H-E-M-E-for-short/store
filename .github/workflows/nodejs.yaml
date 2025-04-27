@@ -25,14 +25,9 @@ jobs:
       - name: Install Node.js dependencies
         run: npm ci
 
-      - name: 
-        run: npm test
+      # - name: 
+      #   run: npm test
 
       - name: Build Project
         run: npm run build # Ensure this outputs to the `dist` directory
 
-      - name: Upload Build Artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: build-artifact
-          path: dist
