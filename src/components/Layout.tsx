@@ -16,7 +16,6 @@ export function Layout() {
           credentials: 'include',
         });
 
-        console.log('running checkAuth', res);
         setIsSignedIn(res.ok);
       } catch {
         setIsSignedIn(false);
