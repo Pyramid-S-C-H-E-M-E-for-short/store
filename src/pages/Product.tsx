@@ -1,29 +1,34 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { lazy, Suspense, useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { ShoppingBagIcon, UserIcon } from "@heroicons/react/24/outline";
 import ColorPicker from "../components/ColorPicker";
 import FilamentDropdown from "../components/FilamentDropdown";
-import { BASE_URL } from '../config';
-import { useColorContext } from '../context/ColorContext';
+import { BASE_URL } from "../config";
+import { useColorContext } from "../context/ColorContext";
+import { useCart } from "../context/CartContext";
 
 const PreviewComponent = lazy(() => import("../components/PreviewComponent"));
 
 export default function ProductPage() {
-	const { dispatch } = useColorContext();
+	const { dispatch, state } = useColorContext();
+	const {  cart, addToCart } = useCart();
+	const [quantity, setQuantity] = useState(1);
+	console.log("quantity", quantity);
+
 	const { id } = useParams<{ id: string }>();
-	const [product, setProduct] = useState<Product| undefined>(undefined);
+	const [product, setProduct] = useState<Product | undefined>(undefined);
 	const [selectedFilament, setSelectedFilament] = useState<string>("PLA");
 
 	// Fetch product data based on ID
 	useEffect(() => {
 		const fetchProduct = async () => {
 			try {
-				const response = await fetch(`${BASE_URL}/product/${id}`)
-				const data = await response.json() as Product;
+				const response = await fetch(`${BASE_URL}/product/${id}`);
+				const data = (await response.json()) as Product;
 				setProduct(data);
 
-				if(data.color) {
+				if (data.color) {
 					dispatch({ type: "SET_INITIAL_COLOR", payload: data.color });
 				}
 			} catch (error) {
@@ -63,16 +68,16 @@ export default function ProductPage() {
 
 								{/* Cart */}
 								<div className="ml-4 flow-root lg:ml-6">
-									<a href="#" className="group -m-2 flex items-center p-2">
+									<Link to="/cart" className="group -m-2 flex items-center p-2">
 										<ShoppingBagIcon
 											aria-hidden="true"
 											className="h-6 w-6 flex-shrink-0 text-gray-400 group-hover:text-gray-500"
 										/>
 										<span className="ml-2 text-sm font-medium text-gray-700 group-hover:text-gray-800">
-											0
+											{cart.length}
 										</span>
 										<span className="sr-only">items in cart, view bag</span>
-									</a>
+									</Link>
 								</div>
 							</div>
 						</div>
@@ -99,7 +104,7 @@ export default function ProductPage() {
 						<div className="grid grid-cols-1 lg:grid-cols-2 lg:grid-rows-3 lg:gap-8">
 							<Suspense fallback={<div data-id="loading">Loading...</div>}>
 								<PreviewComponent
-									color={product.color} 
+									color={product.color}
 									url={product.stl}
 									onExceedsLimit={() => false}
 									onError={() => (
@@ -115,16 +120,60 @@ export default function ProductPage() {
 					<div className="mt-8 lg:col-span-5">
 						<form>
 							<div>
-								<h2 className="text-sm font-medium text-gray-900">Filament Selection</h2>
-								<FilamentDropdown selectedFilament={selectedFilament} setSelectedFilament={setSelectedFilament} />
+								<h2 className="text-sm font-medium text-gray-900">
+									Filament Selection
+								</h2>
+								<FilamentDropdown
+									selectedFilament={selectedFilament}
+									setSelectedFilament={setSelectedFilament}
+								/>
 							</div>
 							<div>
 								<h2 className="text-sm font-medium text-gray-900">Color</h2>
 								<ColorPicker filamentType={selectedFilament} />
+								<div className="mt-4">
+									<h2 className="text-sm font-medium text-gray-900">
+										Quantity
+									</h2>
+									<div>
+										<input
+											type="number"
+											value={quantity}
+											onChange={(e) =>
+												setQuantity(Math.max(1, parseInt(e.target.value) || 1))
+											}
+										/>
+										<button
+											type="button"
+											onClick={() => setQuantity((qty) => Math.max(1, qty - 1))}
+											className="px-3 py-1 border rounded-r bg-gray-200 hover:bg-gray-300"
+										>
+											-
+										</button>
+										<button
+											type="button"
+											onClick={() => setQuantity((qty) => qty + 1)}
+											className="px-3 py-1 border rounded-r bg-gray-200 hover:bg-gray-300"
+										>
+											+
+										</button>
+									</div>
+								</div>
 							</div>
 
 							<button
-								type="submit"
+								type="button"
+								onClick={() =>
+									addToCart({
+										id: Number(id),
+										name: product.name,
+										price: parseFloat(product.price),
+										color: state.color,
+										quantity,
+										filamentType: selectedFilament,
+										image: "",
+									})
+								}
 								className="mt-8 flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 px-8 py-3 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
 							>
 								Add to cart
@@ -147,11 +196,10 @@ export default function ProductPage() {
 	);
 }
 
-	interface Product {
-		name: string;
-		price: string;
-		stl: string;
-		description: string;
-		color: string;
-	}
-
+interface Product {
+	name: string;
+	price: string;
+	stl: string;
+	description: string;
+	color: string;
+}
