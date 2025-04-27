@@ -52,7 +52,7 @@ export default function CartPage() {
         ))}
       </div>
 
-      <div className="mt-8 border-t pt-6">
+      <div className="mt-8 pt-6">
         <div className="flex justify-between text-xl font-semibold">
           <span>Subtotal</span>
           <span>${subtotal.toFixed(2)}</span>
