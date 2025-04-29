@@ -1,11 +1,4 @@
-interface CartItemsProps  {
-  id: string;
-  name: string;
-  price: number;
-  quantity: number;
-  imageUrl: string;
-  onRemove: (id: string) => void;
-}
+import { CartItemsProps } from '../interfaces/cartItem';
 
 const CartItem = ({ name, imageUrl, price, quantity}: CartItemsProps) => {
   return (

@@ -1,27 +1,14 @@
-import { createContext, useContext, useEffect, useState } from "react";
-
-export type CartItem = {
-  id: number;
-  name: string;
-  price: number;
-  image: string;
-  quantity: number;
-  color: string;
-  filamentType: string;
-};
-
-interface CartContextProps {
-  cart: CartItem[];
-  addToCart: (item: CartItem) => void;
-  removeFromCart: (item: CartItem) => void;
-  clearCart: () => void;
-}
+import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { CartContextProps, CartItem } from "../interfaces/cartItem";
 
 const CartContext = createContext<CartContextProps | undefined>(undefined);
+
+const TAB_ID = Math.random().toString(36).slice(2);
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>(() => {
     const storedCart = localStorage.getItem("cart");
+    console.log('storedCart', storedCart);
     try {
       const parsedCart = storedCart ? JSON.parse(storedCart) : [];
       return Array.isArray(parsedCart) ? parsedCart.filter(Boolean) : [];
@@ -30,9 +17,53 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
   });
 
+  const channelRef = useRef<BroadcastChannel | null>(null);
+
   useEffect(() => {
-    localStorage.setItem("cart", JSON.stringify(cart));
-  }, [cart]);
+    const channel = new BroadcastChannel("cart_channel");
+    channelRef.current = channel;
+
+    const handler = (event: MessageEvent) => {
+      const message = event.data;
+      if (message.type === "sync" && message.sender !== TAB_ID) {
+        if (Array.isArray(message.payload)) {
+          setCart(message.payload);
+        }
+      }
+    };
+
+    channel.addEventListener("message", handler);
+
+    const resync = () => {
+      const stored = localStorage.getItem("cart");
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed)) {
+            setCart(parsed.filter(Boolean));
+          }
+        } catch {
+          // ignore
+        }
+      }
+    };
+    window.addEventListener("focus", resync);
+
+    return () => {
+      channel.removeEventListener("message", handler);
+      window.removeEventListener("focus", resync);
+      channel.close();
+    };
+  }, []);
+
+  const syncCart = (newCart: CartItem[]) => {
+    localStorage.setItem("cart", JSON.stringify(newCart));
+    channelRef.current?.postMessage({
+      type: "sync",
+      sender: TAB_ID,
+      payload: newCart,
+    });
+  };
 
   const addToCart = (item: CartItem) => {
     if (!item || !item.id) return;
@@ -45,39 +76,47 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           p.filamentType === item.filamentType
       );
 
-      if (existingItem) {
-        return prev.map((p) =>
-          p.id === item.id &&
-          p.color === item.color &&
-          p.filamentType === item.filamentType
-            ? { ...p, quantity: p.quantity + item.quantity }
-            : p
-        );
-      } else {
-        return [...prev, item];
-      }
+      const updatedCart = existingItem
+        ? prev.map((p) =>
+            p.id === item.id &&
+            p.color === item.color &&
+            p.filamentType === item.filamentType
+              ? { ...p, quantity: p.quantity + item.quantity }
+              : p
+          )
+        : [...prev, item];
+
+      syncCart(updatedCart);
+      return updatedCart;
     });
   };
 
   const removeFromCart = (itemToRemove: CartItem) => {
-    setCart((prev) =>
-      prev.filter(
+    setCart((prev) => {
+      const updatedCart = prev.filter(
         (item) =>
           !(
             item.id === itemToRemove.id &&
             item.color === itemToRemove.color &&
             item.filamentType === itemToRemove.filamentType
           )
-      )
-    );
+      );
+
+      syncCart(updatedCart);
+      return updatedCart;
+    });
   };
 
   const clearCart = () => {
-    setCart([]);
+    const emptyCart: CartItem[] = [];
+    setCart(emptyCart);
+    syncCart(emptyCart);
   };
 
   return (
-    <CartContext.Provider value={{ cart, addToCart, removeFromCart, clearCart }}>
+    <CartContext.Provider
+      value={{ cart, addToCart, removeFromCart, clearCart }}
+    >
       {children}
     </CartContext.Provider>
   );
