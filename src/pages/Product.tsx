@@ -142,6 +142,7 @@ export default function ProductPage() {
 												setQuantity(Math.max(1, parseInt(e.target.value) || 1))
 											}
 										/>
+										
 										<button
 											type="button"
 											onClick={() => setQuantity((qty) => Math.max(1, qty - 1))}

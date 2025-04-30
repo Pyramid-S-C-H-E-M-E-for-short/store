@@ -9,6 +9,7 @@ import Signin from "./pages/Signin";
 import { Layout } from "./components/Layout";
 import Cart from "./pages/Cart";
 import { CartProvider } from "./context/CartContext";
+import Checkout from './pages/Checkout';
 
 function App() {
 	return (
@@ -24,6 +25,7 @@ function App() {
 							<Route path="signin" element={<Signin />} />
 							<Route path="profile" element={<Profile />} />
 							<Route path="/cart" element={<Cart />} />
+							<Route path="/checkout" element={<Checkout/>} />
 
 							{/* Route to ProductPage with a dynamic product ID */}
 							<Route path="product/:id" element={<ProductPage />} />
