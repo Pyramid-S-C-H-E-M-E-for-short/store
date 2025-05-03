@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { ChevronDownIcon } from "@heroicons/react/16/solid";
 import { TrashIcon } from "@heroicons/react/20/solid";
 import { BASE_URL } from "../config";
+import InputField from "../components/InputField";
 
 const products = [
 	{
@@ -28,11 +29,11 @@ export default function Checkout() {
 	const getProfileData = async () => {
 		try {
 			const response = await fetch(`${BASE_URL}/profile`, {
-        credentials: "include",
-      });
+				credentials: "include",
+			});
 			const data = await response.json();
 
-      return data;
+			return data;
 		} catch (err: unknown) {
 			if (err instanceof Error) {
 				console.error(`Error fetching profile: ${err.message}`);
@@ -40,9 +41,35 @@ export default function Checkout() {
 		}
 	};
 
-  useEffect(() => {
-    getProfileData();
-  }, [])
+	const handleSubmit = async (e: unknown) => {
+		// e.preventDefault();
+		// const formData = new FormData(e.currentTarget);
+		// const data = Object.fromEntries(formData.entries());
+		const data = {};
+
+		try {
+			const response = await fetch(`${BASE_URL}/profile`, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify(data),
+				credentials: "include",
+			});
+			if (response.ok) {
+				const updatedProfile = (await response.json()) as Profile;
+				setProfile(updatedProfile);
+			} else {
+				console.error("Failed to update profile");
+			}
+		} catch (err) {
+			console.error("Error updating profile:", err);
+		}
+	};
+
+	useEffect(() => {
+		getProfileData();
+	}, []);
 
 	return (
 		<div className="bg-gray-50">
@@ -57,20 +84,11 @@ export default function Checkout() {
 							</h2>
 
 							<div className="mt-4">
-								<label
-									htmlFor="email-address"
-									className="block text-sm/6 font-medium text-gray-700"
-								>
-									Email address
-								</label>
 								<div className="mt-2">
-									<input
-										id="email-address"
-										name="email-address"
-										type="email"
-										autoComplete="email"
-                    value={profile?.email}
-										className="block w-full rounded-md bg-white px-3 py-2 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+									<InputField
+										key="emailAddress"
+										label="Email Address"
+										id="emailAddress"
 									/>
 								</div>
 							</div>
@@ -82,92 +100,16 @@ export default function Checkout() {
 							</h2>
 
 							<div className="mt-4 grid grid-cols-1 gap-y-6 sm:grid-cols-2 sm:gap-x-4">
-								<div>
-									<label
-										htmlFor="first-name"
-										className="block text-sm/6 font-medium text-gray-700"
-									>
-										First name
-									</label>
-									<div className="mt-2">
-										<input
-											id="first-name"
-											name="first-name"
-											type="text"
-											autoComplete="given-name"
-											className="block w-full rounded-md bg-white px-3 py-2 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-										/>
-									</div>
-								</div>
+								<InputField id='firstName' label='First Name' key='firstName' />
+								<InputField id='lastName' label='Last Name' key='lastname' />
 
-								<div>
-									<label
-										htmlFor="last-name"
-										className="block text-sm/6 font-medium text-gray-700"
-									>
-										Last name
-									</label>
-									<div className="mt-2">
-										<input
-											id="last-name"
-											name="last-name"
-											type="text"
-											autoComplete="family-name"
-											className="block w-full rounded-md bg-white px-3 py-2 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-										/>
-									</div>
+								<div className="sm:col-span-2">
+									<InputField id='address' label='Address' key='address' />
 								</div>
 
 								<div className="sm:col-span-2">
-									<label
-										htmlFor="company"
-										className="block text-sm/6 font-medium text-gray-700"
-									>
-										Company
-									</label>
-									<div className="mt-2">
-										<input
-											id="company"
-											name="company"
-											type="text"
-											className="block w-full rounded-md bg-white px-3 py-2 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-										/>
-									</div>
-								</div>
-
-								<div className="sm:col-span-2">
-									<label
-										htmlFor="address"
-										className="block text-sm/6 font-medium text-gray-700"
-									>
-										Address
-									</label>
-									<div className="mt-2">
-										<input
-											id="address"
-											name="address"
-											type="text"
-											autoComplete="street-address"
-											className="block w-full rounded-md bg-white px-3 py-2 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-										/>
-									</div>
-								</div>
-
-								<div className="sm:col-span-2">
-									<label
-										htmlFor="apartment"
-										className="block text-sm/6 font-medium text-gray-700"
-									>
-										Apartment, suite, etc.
-									</label>
-									<div className="mt-2">
-										<input
-											id="apartment"
-											name="apartment"
-											type="text"
-											className="block w-full rounded-md bg-white px-3 py-2 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-										/>
-									</div>
+									<InputField id='address2' label='Apartment, suite, etc' key='address2' />
+									
 								</div>
 
 								<div>
@@ -475,6 +417,7 @@ export default function Checkout() {
 
 							<div className="border-t border-gray-200 px-4 py-6 sm:px-6">
 								<button
+									onClick={handleSubmit((e) => handleSubmit(e))}
 									type="submit"
 									className="w-full rounded-md border border-transparent bg-indigo-600 px-4 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-50"
 								>
@@ -490,7 +433,7 @@ export default function Checkout() {
 }
 
 interface Profile {
-  email: string;
-  firstName: string;
-  lastName: string;
+	email: string;
+	firstName: string;
+	lastName: string;
 }

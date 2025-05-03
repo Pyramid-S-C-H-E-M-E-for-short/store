@@ -82,6 +82,8 @@ const Signin = () => {
 				headers: { "Content-Type": "application/json" },
 				credentials: "include",
 				body: JSON.stringify({ email }),
+			}).catch((err) => {
+				console.error("Error during fetch:", err);
 			});
 
 			if (!beginRes.ok) throw new Error("User not registered or no passkey found");
