@@ -24,10 +24,6 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>;
 
-type AuthBeginResponse = {
-	options: PublicKeyCredentialRequestOptions;
-};
-
 const Signin = () => {
 	const navigate = useNavigate();
 	const [loading, setLoading] = useState(false);
@@ -82,18 +78,16 @@ const Signin = () => {
 				headers: { "Content-Type": "application/json" },
 				credentials: "include",
 				body: JSON.stringify({ email }),
-			}).catch((err) => {
-				console.error("Error during fetch:", err);
 			});
 
 			if (!beginRes.ok) throw new Error("User not registered or no passkey found");
 
-			const { options } = (await beginRes.json()) 
+			const { options } = (await beginRes.json()) as { options: PublicKeyCredentialRequestOptions };
 
 			options.challenge = base64urlToUint8Array(options.challenge as unknown as string).buffer;
 			options.allowCredentials = options.allowCredentials?.map((cred) => ({
 				...cred,
-				id: base64urlToUint8Array(cred.id)
+				id: typeof cred.id === "string" ? base64urlToUint8Array(cred.id) : cred.id
 			}));
 
 			console.log("allowCredentials", options.allowCredentials);

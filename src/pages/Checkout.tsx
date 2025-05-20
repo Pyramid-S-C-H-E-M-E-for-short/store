@@ -41,11 +41,11 @@ export default function Checkout() {
 		}
 	};
 
-	const handleSubmit = async (e: unknown) => {
-		// e.preventDefault();
-		// const formData = new FormData(e.currentTarget);
-		// const data = Object.fromEntries(formData.entries());
-		const data = {};
+	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+		e.preventDefault();
+		const formData = new FormData(e.currentTarget);
+		const data = Object.fromEntries(formData.entries());
+		console.log('profile', profile);
 
 		try {
 			const response = await fetch(`${BASE_URL}/profile`, {
@@ -76,7 +76,7 @@ export default function Checkout() {
 			<div className="mx-auto max-w-2xl px-4 pb-24 pt-16 sm:px-6 lg:max-w-7xl lg:px-8">
 				<h2 className="sr-only">Checkout</h2>
 
-				<form className="lg:grid lg:grid-cols-2 lg:gap-x-12 xl:gap-x-16">
+				<form className="lg:grid lg:grid-cols-2 lg:gap-x-12 xl:gap-x-16" onSubmit={handleSubmit}>
 					<div>
 						<div>
 							<h2 className="text-lg font-medium text-gray-900">
@@ -417,7 +417,6 @@ export default function Checkout() {
 
 							<div className="border-t border-gray-200 px-4 py-6 sm:px-6">
 								<button
-									onClick={handleSubmit((e) => handleSubmit(e))}
 									type="submit"
 									className="w-full rounded-md border border-transparent bg-indigo-600 px-4 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-50"
 								>
