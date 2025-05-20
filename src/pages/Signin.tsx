@@ -88,13 +88,16 @@ const Signin = () => {
 
 			if (!beginRes.ok) throw new Error("User not registered or no passkey found");
 
-			const { options } = (await beginRes.json()) as AuthBeginResponse;
+			const { options } = (await beginRes.json()) 
 
 			options.challenge = base64urlToUint8Array(options.challenge as unknown as string).buffer;
 			options.allowCredentials = options.allowCredentials?.map((cred) => ({
 				...cred,
-				id: cred.id
+				id: base64urlToUint8Array(cred.id)
 			}));
+
+			console.log("allowCredentials", options.allowCredentials);
+
 
 			const credential = (await navigator.credentials.get({
 				publicKey: options,
@@ -107,7 +110,7 @@ const Signin = () => {
 			const payload = {
 				email,
 				response: {
-					id: credential.id,
+					id: base64urlToUint8Array(credential.id),
 					rawId: bufferToBase64(credential.rawId),
 					type: credential.type,
 					response: {
