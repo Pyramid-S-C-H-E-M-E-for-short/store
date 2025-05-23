@@ -113,9 +113,26 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     syncCart(emptyCart);
   };
 
+  const updateQuantity = (itemToUpdate: CartItem, quantity: number) => {
+    setCart((prev) => {
+      const updatedCart = prev.map((item) => {
+        if (
+          item.id === itemToUpdate.id &&
+          item.color === itemToUpdate.color &&
+          item.filamentType === itemToUpdate.filamentType
+        ) {
+          return { ...item, quantity };
+        }
+        return item;
+      });
+      syncCart(updatedCart);
+      return updatedCart;
+    });
+  };
+
   return (
     <CartContext.Provider
-      value={{ cart, addToCart, removeFromCart, clearCart }}
+      value={{ cart, addToCart, removeFromCart, clearCart, updateQuantity }}
     >
       {children}
     </CartContext.Provider>

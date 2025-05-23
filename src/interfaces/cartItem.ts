@@ -7,11 +7,13 @@ export interface CartItemsProps  {
   onRemove: (id: string) => void;
 }
 
+
 export interface CartContextProps {
   cart: CartItem[];
   addToCart: (item: CartItem) => void;
   removeFromCart: (item: CartItem) => void;
   clearCart: () => void;
+  updateQuantity: (item: CartItem, quantity: number) => void;
 }
 
 
@@ -19,8 +21,9 @@ export type CartItem = {
   id: number;
   name: string;
   price: number;
-  image: string;
+  image?: string;
   quantity: number;
   color: string;
   filamentType: string;
+  // Optionally add more fields as needed
 };
