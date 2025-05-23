@@ -17,7 +17,7 @@ const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 describe("ColorPicker Component", () => {
   beforeEach(() => {
-    vi.spyOn(global, "fetch").mockImplementation(async () => {
+    vi.spyOn(globalThis, "fetch").mockImplementation(async () => {
       await delay(50); // Simulate a short network delay
       return {
         json: async () => mockColors,
