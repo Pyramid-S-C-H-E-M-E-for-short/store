@@ -5,17 +5,6 @@ import { TrashIcon } from "@heroicons/react/20/solid";
 import { BASE_URL } from "../config";
 import InputField from "../components/InputField";
 
-function getCartFromLocalStorage() {
-	try {
-		const storedCart = localStorage.getItem("cart");
-		if (!storedCart) return [];
-		const parsed = JSON.parse(storedCart);
-		return Array.isArray(parsed) ? parsed.filter(Boolean) : [];
-	} catch {
-		return [];
-	}
-}
-
 const paymentMethods = [
 	{ id: "credit-card", title: "Credit card" },
 	{ id: "paypal", title: "PayPal" },
