@@ -49,16 +49,10 @@ export default function ProductPage() {
 				>
 					<div className="border-b border-gray-200">
 						<div className="flex h-16 items-center justify-between">
-							{/* Logo */}
-							<a href="#" className="flex">
-								<span className="sr-only">RC stuff</span>
-								RC Stuff
-							</a>
-
 							<div className="flex flex-1 items-center justify-end">
 								{/* Account */}
 								<a
-									href="#"
+									href="/profile"
 									className="p-2 text-gray-400 hover:text-gray-500 lg:ml-4"
 								>
 									<span className="sr-only">Account</span>
@@ -92,7 +86,7 @@ export default function ProductPage() {
 								{product.name}
 							</h1>
 							<p className="text-xl font-medium text-gray-900">
-								{product.price}
+								${product.price}
 							</p>
 						</div>
 					</div>
