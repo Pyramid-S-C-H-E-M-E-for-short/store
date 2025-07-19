@@ -1,199 +1,176 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useState } from "react";
+import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import { BASE_URL, DOMAIN } from "../config";
+import toast from 'react-hot-toast';
+
 
 const Profile = () => {
-	const [profile, setProfile] = useState<Profile | undefined>(undefined);
+	const [profile, setProfile] = useState<Profile | null>(null);
+	const [form,   setForm]   = useState<Profile | null>(null); // editable copy
 	const [authenticators, setAuthenticators] = useState<any[]>([]);
-	const [message, setMessage] = useState<string>("");
+	const [message, setMessage] = useState("");
+	const [editMode, setEditMode] = useState(false);
 
 	const getProfile = async () => {
-		const res = await fetch(`${BASE_URL}/profile`, {
-			credentials: "include",
-		});
+		const res = await fetch(`${BASE_URL}/profile`, { credentials: "include" });
 		if (!res.ok) throw new Error("Failed to fetch profile");
-		const data = (await res.json()) as Profile;
-		setProfile(data);
+		setProfile(await res.json());
 	};
 
 	const getAuthenticators = async () => {
-		const res = await fetch(`${BASE_URL}/webauthn/authenticators`, {
-			credentials: "include",
-		});
+		const res = await fetch(`${BASE_URL}/webauthn/authenticators`, { credentials: "include" });
 		if (!res.ok) throw new Error("Failed to fetch authenticators");
-		const data: any[] = await res.json();
-		setAuthenticators(data);
+		setAuthenticators(await res.json());
 	};
 
-	const handleAddPasskey = async () => {
-		try {
-			setMessage("Starting passkey registration...");
-			const beginRes = await fetch(`${BASE_URL}/webauthn/register/begin`, {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				credentials: "include",
-				body: JSON.stringify({ email: profile?.email }),
-			});
+	const handleEdit  = () => { setForm(profile); setEditMode(true); };
+	const handleAbort = () => { setEditMode(false); setForm(null); };
 
-			if (!beginRes.ok) {
-				setMessage("Begin registration failed");
-				return;
-			}
+	const handleChange = (e: ChangeEvent<HTMLInputElement>) =>
+		setForm((f) => (f ? { ...f, [e.target.name]: e.target.value } as Profile : f));
 
-			const options = (await beginRes.json()) as {
-				challenge: string;
-				user: { id: string; [key: string]: any };
-				[key: string]: any;
-			};
-
-			// Convert Base64URL to Base64
-			const base64ToBase64Url = (base64url: string): string => {
-				return base64url
-					.replace(/-/g, "+")
-					.replace(/_/g, "/")
-					.padEnd(base64url.length + ((4 - (base64url.length % 4)) % 4), "=");
-			};
-
-			const challengeBase64 = base64ToBase64Url(options.challenge);
-			console.log("DOMAIN", DOMAIN);
-
-			const credential = (await navigator.credentials
-				.create({
-					publicKey: {
-						...options,
-						challenge: Uint8Array.from(atob(challengeBase64), (c) =>
-							c.charCodeAt(0)
-						),
-
-						user: {
-							...options.user,
-							id: Uint8Array.from(String(options.user.id), (c) =>
-								c.charCodeAt(0)
-							),
-							displayName: "",
-							name: "",
-						},
-						pubKeyCredParams: [
-							{ alg: -8, type: "public-key" },
-							{ alg: -7, type: "public-key" },
-							{ alg: -257, type: "public-key" },
-						],
-						// rp: { id: 'rc-store.benhalverson.dev', name: "Lulu's Raceshop" },
-						rp: { id: `${DOMAIN}`, name: "Lulu's Raceshop" },
-					},
-				})
-				.catch((err) => {
-					console.error("Error creating credential:", err);
-					setMessage("Error creating credential");
-				})) as PublicKeyCredential | null;
-
-			if (!credential) {
-				setMessage("User cancelled passkey creation");
-				return;
-			}
-
-			const credentialResponse = {
-				id: credential.id,
-				rawId: btoa(String.fromCharCode(...new Uint8Array(credential.rawId))),
-				type: credential.type,
-				response: {
-					clientDataJSON: btoa(
-						String.fromCharCode(
-							...new Uint8Array(credential.response.clientDataJSON)
-						)
-					),
-					attestationObject: btoa(
-						String.fromCharCode(
-							...new Uint8Array((credential.response as any).attestationObject)
-						)
-					),
-				},
-			};
-
-			const finishRes = await fetch(`${BASE_URL}/webauthn/register/finish`, {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				credentials: "include",
-				body: JSON.stringify(credentialResponse),
-			});
-
-			if (!finishRes.ok) {
-				setMessage("Finish registration failed");
-				return;
-			}
-
-			setMessage("Passkey added!");
-			await getAuthenticators();
-		} catch (err: any) {
-			setMessage("Error: " + err.message);
-		}
-	};
-	const handleRemove = async (id: string) => {
-		await fetch(`${BASE_URL}/webauthn/authenticators/${id}`, {
-			method: "DELETE",
-			credentials: "include",
+	const handleSave = async (e: FormEvent) => {
+		e.preventDefault();
+		if (!form) return;
+		const res = await fetch(`${BASE_URL}/profile/${profile?.id}`, {
+			method: "POST", credentials: "include",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify(form),
 		});
-		await getAuthenticators();
+		if (!res.ok) {
+			toast.error("Failed to update profile");
+			return;
+		}
+		setProfile(await res.json());
+		setEditMode(false);
+		toast.success("Profile updated successfully");
 	};
 
-	useEffect(() => {
-		getProfile();
-		getAuthenticators();
-	}, []);
+	const handleAddPasskey = () => {};
+	const handleRemove     = () => {};
+
+	useEffect(() => { getProfile(); getAuthenticators(); }, []);
 
 	return (
-		<div style={{ padding: "1rem" }}>
-			<h2>Profile</h2>
-			{profile ? (
-				<ul>
-					<li>Email: {profile.email}</li>
-					<li>Phone: {profile.phone}</li>
-					<li>First Name: {profile.firstName}</li>
-					<li>Last Name: {profile.lastName}</li>
-					<li>Address: {profile.address}</li>
-					<li>City: {profile.city}</li>
-					<li>State: {profile.state}</li>
-					<li>Zipcode: {profile.zipCode}</li>
-					<li>Country: {profile.country}</li>
+		<div className="p-6 max-w-xl mx-auto space-y-6">
+			<header className="flex items-center justify-between">
+				<h2 className="text-2xl font-semibold">Profile</h2>
+				{!editMode && (
+					<button
+						onClick={handleEdit}
+						className="rounded bg-blue-600 text-white px-4 py-1 hover:bg-blue-700"
+					>
+						Edit
+					</button>
+				)}
+			</header>
+
+	
+			{!editMode && profile && (
+				<ul className="space-y-1">
+					<li><strong>Email:</strong> {profile.email}</li>
+					<li><strong>Phone:</strong> {profile.phone}</li>
+					<li><strong>First Name:</strong> {profile.firstName}</li>
+					<li><strong>Last Name:</strong> {profile.lastName}</li>
+					<li><strong>Address:</strong> {profile.shippingAddress}</li>
+					<li><strong>City:</strong> {profile.city}</li>
+					<li><strong>State:</strong> {profile.state}</li>
+					<li><strong>Zip:</strong> {profile.zipCode}</li>
+					<li><strong>Country:</strong> {profile.country}</li>
 				</ul>
-			) : (
-				<p>Loading profile...</p>
 			)}
 
-			<h3>Passkeys</h3>
-			{authenticators.length === 0 && <p>No passkeys registered.</p>}
-			<ul>
-				{authenticators.map((auth: any) => (
-					<li key={auth.credentialId}>
-						<span>{auth.credentialId.slice(0, 10)}...</span>
-						<button
-							onClick={() => handleRemove(auth.credentialId)}
-							style={{ marginLeft: "1rem" }}
-						>
-							Remove
+			{editMode && form && (
+				<form onSubmit={handleSave} className="space-y-4">
+					<div className="grid gap-4 sm:grid-cols-2">
+						<Input name="firstName" label="First name" value={form.firstName} onChange={handleChange} />
+						<Input name="lastName"  label="Last name"  value={form.lastName}  onChange={handleChange} />
+						<Input name="email"     label="Email"     value={form.email}     onChange={handleChange} />
+						<Input name="phone"     label="Phone"     value={form.phone}     onChange={handleChange} />
+						<Input name="shippingAddress"   label="Address"   value={form.shippingAddress}   onChange={handleChange} />
+						<Input name="city"      label="City"      value={form.city}      onChange={handleChange} />
+						<Input name="state"     label="State"     value={form.state}     onChange={handleChange} />
+						<Input name="zipCode"   label="Zip"       value={form.zipCode}   onChange={handleChange} />
+						<Input name="country"   label="Country"   value={form.country}   onChange={handleChange} />
+					</div>
+
+					<div className="flex gap-3">
+						<button type="submit" className="rounded bg-green-600 text-white px-4 py-1 hover:bg-green-700">
+							Save
 						</button>
-					</li>
-				))}
-			</ul>
+						<button type="button" onClick={handleAbort} className="rounded bg-gray-200 px-4 py-1 hover:bg-gray-300">
+							Cancel
+						</button>
+					</div>
+				</form>
+			)}
 
-			<button onClick={handleAddPasskey}>Add New Passkey</button>
+			
+			<section className="space-y-2">
+				<h3 className="text-xl font-semibold">Passkeys</h3>
+				{authenticators.length === 0 && <p>No passkeys registered.</p>}
 
-			{message && <p>{message}</p>}
+				<ul className="space-y-1">
+					{authenticators.map((auth) => (
+						<li key={auth.credentialId} className="flex items-center justify-between">
+							<span className="font-mono text-sm">{auth.credentialId.slice(0, 10)}…</span>
+							<button
+								onClick={() => handleRemove(auth.credentialId)}
+								className="text-red-600 hover:underline"
+							>
+								Remove
+							</button>
+						</li>
+					))}
+				</ul>
+
+				<button
+					onClick={handleAddPasskey}
+					className="rounded bg-blue-600 text-white px-4 py-1 hover:bg-blue-700"
+				>
+					Add New Passkey
+				</button>
+			</section>
+
+			{message && <p className="text-sm text-gray-600">{message}</p>}
 		</div>
 	);
 };
 
-export default Profile;
+
+const Input = ({
+	name,
+	label,
+	value,
+	onChange,
+}: {
+	name: keyof Profile;
+	label: string;
+	value: string;
+	onChange: (e: ChangeEvent<HTMLInputElement>) => void;
+}) => (
+	<label className="flex flex-col text-sm">
+		<span className="mb-1 font-medium">{label}</span>
+		<input
+			name={name}
+			value={value}
+			onChange={onChange}
+			className="rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+		/>
+	</label>
+);
 
 export interface Profile {
 	id: number;
 	email: string;
 	firstName: string;
 	lastName: string;
-	address: string;
+	shippingAddress: string;
 	city: string;
 	state: string;
 	zipCode: string;
 	country: string;
 	phone: string;
 }
+
+export default Profile;
