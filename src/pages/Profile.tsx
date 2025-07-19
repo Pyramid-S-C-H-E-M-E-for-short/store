@@ -72,7 +72,7 @@ const Profile = () => {
 					<li><strong>Phone:</strong> {profile.phone}</li>
 					<li><strong>First Name:</strong> {profile.firstName}</li>
 					<li><strong>Last Name:</strong> {profile.lastName}</li>
-					<li><strong>Address:</strong> {profile.shippingAddress}</li>
+					<li><strong>Shipping Address:</strong> {profile.shippingAddress}</li>
 					<li><strong>City:</strong> {profile.city}</li>
 					<li><strong>State:</strong> {profile.state}</li>
 					<li><strong>Zip:</strong> {profile.zipCode}</li>
