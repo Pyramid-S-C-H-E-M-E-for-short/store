@@ -65,7 +65,7 @@ export default function Checkout() {
 			return console.log('Failed to create PaymentIntent');
 		}
 
-		const {stripePromise} = await res.json();
+		const {clientSecret} = await res.json();
 
 		const cardNumber = cardNumberRef.current?.value || '';
 		const name = nameRef.current?.value || '';
