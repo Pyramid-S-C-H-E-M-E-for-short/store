@@ -4,6 +4,7 @@ import InputField from '../components/InputField';
 import { TrashIcon } from '@heroicons/react/20/solid';
 import { loadStripe } from '@stripe/stripe-js';
 import { BASE_URL, STRIPE_PUBLISHABLE_KEY } from '../config';
+import toast from 'react-hot-toast';
 
 const stripePromise = loadStripe(STRIPE_PUBLISHABLE_KEY);
 
@@ -65,7 +66,7 @@ export default function Checkout() {
 			return console.log('Failed to create PaymentIntent');
 		}
 
-		const {clientSecret} = await res.json();
+		const {clientSecret} = await res.json() 
 
 		const cardNumber = cardNumberRef.current?.value || '';
 		const name = nameRef.current?.value || '';
@@ -89,9 +90,9 @@ export default function Checkout() {
 
 		if (result.error) {
 			console.error(result.error.message);
-			alert(`Payment failed: ${result.error.message}`);
+			toast.error(`Payment failed: ${result.error.message}`);
 		} else if (result.paymentIntent?.status === 'succeeded') {
-			alert('✅ Payment successful!');
+			toast.success('Payment successful! Thank you for your order.');
 		}
 	};
 
