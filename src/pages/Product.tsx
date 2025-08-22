@@ -132,7 +132,7 @@ export default function ProductPage() {
 								<Gallery
 									images={product.photos || []}
 									onImageClick={setSelectedImage}
-									selectedImage={selectedImage || undefined}
+									selectedImage={selectedImage || 'https://photos.benhalverson.dev/framebar-rear-1.png'}
 								/>
 							</div>
 						</div>
