@@ -13,6 +13,7 @@ interface PreviewComponentProps {
   url: string;
   onExceedsLimit: (limit: boolean) => void;
   onError: (error: string) => void;
+  imageUrl?: string; // Optional image URL for photo display
 }
 
 interface ModelProps {
@@ -64,7 +65,7 @@ const Model: React.FC<ModelProps> = ({ url, color, onExceedsLimit, onError }) =>
   );
 };
 
-const PreviewComponent: React.FC<PreviewComponentProps> = ({ url, onExceedsLimit, onError }) => {
+const PreviewComponent: React.FC<PreviewComponentProps> = ({ url, onExceedsLimit, onError, imageUrl }) => {
   const { state } = useColorContext();
   const { color } = state;
 
@@ -80,6 +81,21 @@ const PreviewComponent: React.FC<PreviewComponentProps> = ({ url, onExceedsLimit
       window.removeEventListener("resize", handleResize);
     };
   }, []);
+
+  // If imageUrl is provided, show the image instead of 3D model
+  if (imageUrl) {
+    return (
+      <div className="flex flex-col items-center justify-center">
+        <div className="w-full max-w-[600px] h-[400px] bg-gray-100 rounded-lg overflow-hidden">
+          <img
+            src={imageUrl}
+            alt="Product preview"
+            className="w-full h-full object-contain"
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col items-center justify-center">

@@ -4,6 +4,7 @@ import { Link, useParams } from "react-router-dom";
 import { ShoppingBagIcon, UserIcon } from "@heroicons/react/24/outline";
 import ColorPicker from "../components/ColorPicker";
 import FilamentDropdown from "../components/FilamentDropdown";
+import Gallery from "../components/Gallery";
 import { BASE_URL } from "../config";
 import { useColorContext } from "../context/ColorContext";
 import { useCart } from "../context/CartContext";
@@ -14,6 +15,7 @@ export default function ProductPage() {
 	const { dispatch, state } = useColorContext();
 	const {  cart, addToCart } = useCart();
 	const [quantity, setQuantity] = useState(1);
+	const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
 	const { id } = useParams<{ id: string }>();
 	const [product, setProduct] = useState<Product | undefined>(undefined);
@@ -101,18 +103,38 @@ export default function ProductPage() {
 						<h2 className="sr-only">Images</h2>
 
 						<div className="grid grid-cols-1 lg:grid-cols-2 lg:grid-rows-3 lg:gap-8">
-							<Suspense fallback={<div data-id="loading">Loading...</div>}>
-								<PreviewComponent
-									color={product.color}
-									url={product.stl}
-									onExceedsLimit={() => false}
-									onError={() => (
-										<div>
-											<p>There was an error loading the model</p>
-										</div>
-									)}
+							<div className="lg:col-span-2 lg:row-span-2">
+								<Suspense fallback={<div data-id="loading">Loading...</div>}>
+									<PreviewComponent
+										color={product.color}
+										url={product.stl}
+										imageUrl={selectedImage || undefined}
+										onExceedsLimit={() => false}
+										onError={() => (
+											<div>
+												<p>There was an error loading the model</p>
+											</div>
+										)}
+									/>
+								</Suspense>
+								{selectedImage && (
+									<div className="mt-2 text-center">
+										<button
+											onClick={() => setSelectedImage(null)}
+											className="text-sm text-indigo-600 hover:text-indigo-500 underline"
+										>
+											View 3D Model
+										</button>
+									</div>
+								)}
+							</div>
+							<div className="lg:col-span-2 lg:row-span-1">
+								<Gallery
+									images={product.photos || []}
+									onImageClick={setSelectedImage}
+									selectedImage={selectedImage || undefined}
 								/>
-							</Suspense>
+							</div>
 						</div>
 					</div>
 
@@ -202,4 +224,5 @@ interface Product {
 	stl: string;
 	description: string;
 	color: string;
+	photos?: string[]; // Optional array of photo URLs
 }
