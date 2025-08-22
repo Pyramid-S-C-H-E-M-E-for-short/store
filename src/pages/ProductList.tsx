@@ -57,15 +57,15 @@ function ProductList() {
 					<>
 						<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-8'>
 							{products.map((product) => (
-								<div key={product.id} className='bg-white rounded-lg shadow-md'>
+								<div key={product.id} className='bg-white rounded-lg shadow-md flex flex-col h-full'>
 									<img
 										src={product.image}
 										alt={product.name}
 										className='w-full h-48 object-cover object-center rounded-t-lg'
 									/>
-									<div className='p-4'>
+									<div className='p-4 flex flex-col flex-grow'>
 										<h2 className='text-xl font-semibold'>{product.name}</h2>
-										<p className='text-gray-500 mt-2'>{product.description}</p>
+										<p className='text-gray-500 mt-2 flex-grow'>{product.description}</p>
 										<p className='text-gray-500 mt-2'>${product.price}</p>
 										<div className='flex items-center justify-between mt-2'>
 											<span className='text-xs text-gray-400'>{product.skuNumber}</span>
