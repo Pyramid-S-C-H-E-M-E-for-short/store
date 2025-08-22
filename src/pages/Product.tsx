@@ -92,7 +92,7 @@ export default function ProductPage() {
 								{product.name}
 							</h1>
 							<p className="text-xl font-medium text-gray-900">
-								{product.price}
+								${product.price}
 							</p>
 						</div>
 					</div>
