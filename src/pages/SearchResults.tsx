@@ -30,7 +30,8 @@ export default function SearchResults() {
       }
 
       if (!response.ok) {
-        throw new Error(`Search failed: ${response.status}`);
+        const errorData = await response.json() as { error: string };
+        throw new Error(`Search failed: ${errorData.error}`);
       }
 
       const data = await response.json() as SearchResponse;
@@ -41,7 +42,7 @@ export default function SearchResults() {
       setProducts([]);
     } finally {
       setLoading(false);
-    }
+    } 
   };
 
   useEffect(() => {
