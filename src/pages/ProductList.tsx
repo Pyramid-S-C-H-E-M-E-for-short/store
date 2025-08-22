@@ -37,7 +37,7 @@ function ProductList() {
 							<div className='p-4'>
 								<h2 className='text-xl font-semibold'>{product.name}</h2>
 								<p className='text-gray-500 mt-2'>{product.description}</p>
-								<p className='text-gray-500 mt-2'>{product.price}</p>
+								<p className='text-gray-500 mt-2'>${product.price}</p>
 								<Link
 									to={`/product/${product.id}`}
 									className='block bg-blue-500 hover:bg-blue-400 text-white font-semibold text-center rounded-lg px-4 py-2 mt-4'
