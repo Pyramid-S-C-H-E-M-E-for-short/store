@@ -10,6 +10,7 @@ import { Layout } from "./components/Layout";
 import Cart from "./pages/Cart";
 import { CartProvider } from "./context/CartContext";
 import Checkout from './pages/Checkout';
+import SearchResults from './pages/SearchResults';
 
 function App() {
 	return (
@@ -21,6 +22,7 @@ function App() {
 						{/* Set ProductList as the default page */}
 						<Route path="/" element={<Layout />}>
 							<Route index element={<ProductList />} />
+							<Route path="search" element={<SearchResults />} />
 							<Route path="signup" element={<Signup />} />
 							<Route path="signin" element={<Signin />} />
 							<Route path="profile" element={<Profile />} />

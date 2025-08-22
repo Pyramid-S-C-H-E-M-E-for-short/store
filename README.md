@@ -1,6 +1,42 @@
-# React + TypeScript + Vite
+# 3D Printing Store
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern e-commerce store built with React, TypeScript, and Vite for selling 3D printed products.
+
+## Features
+
+- **Product Catalog**: Browse all available 3D printed products
+- **Product Search**: Search products by name, description, or other attributes
+- **Individual Product Pages**: Detailed product views with 3D preview
+- **Shopping Cart**: Add products to cart and manage quantities  
+- **User Authentication**: Sign up, sign in, and user profiles
+- **Responsive Design**: Works on desktop and mobile devices
+
+## Search Functionality
+
+The store includes a powerful search feature:
+
+- **Search Bar**: Located in the navigation header, available on all pages
+- **Search Results Page**: Displays matching products with filters and sorting
+- **Real-time Search**: Searches through product names, descriptions, and metadata
+- **API Integration**: Uses the `/products/search?q=query` endpoint
+
+### Search API
+
+The search functionality uses the endpoint:
+```
+GET /products/search?q={query}
+```
+
+## Tech Stack
+
+- **Frontend**: React 18 + TypeScript
+- **Build Tool**: Vite
+- **Styling**: Tailwind CSS
+- **Routing**: React Router
+- **State Management**: React Context
+- **API**: REST API with search capabilities
+
+## Development
 
 Currently, two official plugins are available:
 

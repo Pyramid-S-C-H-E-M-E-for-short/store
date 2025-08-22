@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { Link } from 'react-router-dom';
 import { BASE_URL } from '../config';
+import { ProductResponse } from '../interfaces/productResponse';
 
 
 function ProductList() {
@@ -54,15 +55,3 @@ function ProductList() {
 }
 
 export default ProductList;
-
-
-export interface ProductResponse {
-	id:           number;
-	name:         string;
-	description:  string;
-	image:        string;
-	stl:          string;
-	price:        number;
-	filamentType: string;
-	color:        string;
-}

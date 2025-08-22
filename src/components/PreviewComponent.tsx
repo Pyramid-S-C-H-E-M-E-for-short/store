@@ -101,11 +101,11 @@ const PreviewComponent: React.FC<PreviewComponentProps> = ({ url, onExceedsLimit
     <div className="flex flex-col items-center justify-center">
       <Canvas
         style={{ width: "600px", height: "400px" }}
-        camera={{ fov: 50, position: [0, 0, 100] }}
+        camera={{ fov: 50, position: [0, 0, 170] }}
         dpr={Math.min(window.devicePixelRatio, 1)} // Lower resolution for resource management
       >
         <ambientLight intensity={0.5} />
-        <directionalLight position={[1, 1, 1]} intensity={0.5} />
+        <directionalLight position={[1, 2, 1]} intensity={0.5} />
         <OrbitControls />
         {url && (
           <Model

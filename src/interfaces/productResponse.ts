@@ -1,6 +1,13 @@
 /**The response for the /list of products */
 export interface ProductResponse {
-  size: string;
-	stl: string;
-  version: string;
+  id: number;
+  name: string;
+  description: string;
+  image: string;
+  stl: string;
+  price: number;
+  filamentType: string;
+  color: string;
+  size?: string;
+  version?: string;
 }
