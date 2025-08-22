@@ -14,6 +14,8 @@ const Profile = () => {
 	const getProfile = async () => {
 		const res = await fetch(`${BASE_URL}/profile`, { credentials: "include" });
 		if (!res.ok) throw new Error("Failed to fetch profile");
+		const data = await res.json();	
+		console.log("Profile response:", data);
 		setProfile(await res.json());
 	};
 

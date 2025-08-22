@@ -3,18 +3,12 @@ import { useCart } from '../context/CartContext';
 import InputField from '../components/InputField';
 import { TrashIcon } from '@heroicons/react/20/solid';
 import { loadStripe } from '@stripe/stripe-js';
-import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import { Elements, CardElement, useStripe, useElements, ExpressCheckoutElement } from '@stripe/react-stripe-js';
 import { BASE_URL, STRIPE_PUBLISHABLE_KEY } from '../config';
 import toast from 'react-hot-toast';
+import { Profile } from './Profile';
 
 const stripePromise = loadStripe(STRIPE_PUBLISHABLE_KEY);
-
-interface Profile {
-	id: string;
-	email: string;
-	firstName: string;
-	lastName: string;
-}
 
 function CheckoutForm({ profile }: { profile?: Profile }) {
 	// 🔥 Using the hook here, as in your original
@@ -174,7 +168,8 @@ function CheckoutForm({ profile }: { profile?: Profile }) {
 						</label>
 						<div className="mt-2">
 							<div className="block w-full rounded-md bg-white px-3 py-2 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
-								<CardElement
+							<ExpressCheckoutElement />
+								{/* <CardElement
 									id="card-element"
 									options={{
 										style: {
@@ -187,7 +182,7 @@ function CheckoutForm({ profile }: { profile?: Profile }) {
 											invalid: { color: '#e53e3e' },
 										},
 									}}
-								/>
+								/> */}
 							</div>
 						</div>
 					</div>
