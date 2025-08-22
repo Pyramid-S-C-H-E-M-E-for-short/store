@@ -5,7 +5,6 @@ import { useColorContext } from "../context/ColorContext";
 import * as THREE from "three";
 import { STLLoader } from "three/examples/jsm/loaders/STLLoader.js";
 
-const GRID_SIZE = 250; // in mm
 const LIMIT_DIMENSIONS_MM = { length: 250, width: 250, height: 310 }; // in mm
 
 interface PreviewComponentProps {
@@ -58,8 +57,9 @@ const Model: React.FC<ModelProps> = ({ url, color, onExceedsLimit, onError }) =>
     };
   }, [geometry, onExceedsLimit, onError]);
 
+
   return (
-    <mesh geometry={geometry} rotation={[Math.PI / 2, 0, 0]} position={[0, 10, 0]}>
+    <mesh geometry={geometry} rotation={[-Math.PI / 2, 0, Math.PI]} position={[0, 0, 0]}>
       <meshStandardMaterial color={color} />
     </mesh>
   );
@@ -101,13 +101,12 @@ const PreviewComponent: React.FC<PreviewComponentProps> = ({ url, onExceedsLimit
     <div className="flex flex-col items-center justify-center">
       <Canvas
         style={{ width: "600px", height: "400px" }}
-        camera={{ fov: 50, position: [0, 0, 800] }}
+        camera={{ fov: 50, position: [0, 0, 100] }}
         dpr={Math.min(window.devicePixelRatio, 1)} // Lower resolution for resource management
       >
         <ambientLight intensity={0.5} />
         <directionalLight position={[1, 1, 1]} intensity={0.5} />
         <OrbitControls />
-        <gridHelper args={[GRID_SIZE, GRID_SIZE]} />
         {url && (
           <Model
             url={url}
