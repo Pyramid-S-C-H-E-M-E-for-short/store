@@ -130,7 +130,7 @@ export default function ProductPage() {
 							</div>
 							<div className="lg:col-span-2 lg:row-span-1">
 								<Gallery
-									images={product.photos || []}
+									images={product.imageGallery}
 									onImageClick={setSelectedImage}
 									selectedImage={selectedImage || ''}
 								/>
@@ -189,11 +189,11 @@ export default function ProductPage() {
 									addToCart({
 										id: Number(id),
 										name: product.name,
-										price: parseFloat(product.price),
+										price: product.price,
 										color: state.color,
 										quantity,
 										filamentType: selectedFilament,
-										image: "",
+										image: product.image,
 									})
 								}
 								className="mt-8 flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 px-8 py-3 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
@@ -219,10 +219,16 @@ export default function ProductPage() {
 }
 
 interface Product {
+	id: number;
 	name: string;
-	price: string;
-	stl: string;
 	description: string;
+	image: string;
+	imageGallery: string[];
+	stl: string;
+	price: number;
+	filamentType: string;
+	skuNumber: string;
 	color: string;
-	photos?: string[]; // Optional array of photo URLs
+	stripeProductId?: string;
+	stripePriceId?: string;
 }
